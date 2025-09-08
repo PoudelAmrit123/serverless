@@ -1,14 +1,14 @@
 ## Creating the Lambda Function 
 
 
-resource "aws_lambda_layer_version" "lambda_layer" {
-  filename            = "layer.zip"
-  layer_name          = "lambda_layer_dependencies_layer"
-  description         = "Common dependencies for Lambda functions"
-  compatible_runtimes = ["python3.12"]
+# resource "aws_lambda_layer_version" "lambda_layer" {
+#   filename            = "layer.zip"
+#   layer_name          = "lambda_layer_dependencies_layer"
+#   description         = "Common dependencies for Lambda functions"
+#   compatible_runtimes = ["python3.12"]
 
-  compatible_architectures = ["x86_64"]
-}
+#   compatible_architectures = ["x86_64"]
+# }
 
                  ## Data Ingestor Function
 
@@ -30,7 +30,7 @@ resource "aws_lambda_function" "data_ingestor_function" {
 
   runtime       = "python3.12"
 
-  layers = [aws_lambda_layer_version.lambda_layer.arn]
+  # layers = [aws_lambda_layer_version.lambda_layer.arn]
 
 #   tracing_config {
 #     mode = "Active" # Enable X-Ray tracing
@@ -38,56 +38,60 @@ resource "aws_lambda_function" "data_ingestor_function" {
 }
 
 
-                 ## Data Analyzer Function 
+####################################################
 
-data "archive_file" "data_analyzer_archive" {
-  type        = "zip"
-  source_file = "${path.module}/boto3/data_analyzer_lambda.py"
-  output_path = "${path.module}/boto3/data_analyzer_lambda.zip"
-}
+#                  ## Data Analyzer Function 
 
-
-
-resource "aws_lambda_function" "data_analyzer_function" {
-   filename         = data.archive_file.data_analyzer_archive.output_path
-  source_code_hash = data.archive_file.data_analyzer_archive.output_base64sha256
-  function_name = "data_analyzer_function"
-  role          = aws_iam_role.lambda_iam_role.arn
-  handler       = "data_analyzer_lambda.lambda_handler"
-  runtime       = "python3.12"
-
-  layers = [aws_lambda_layer_version.lambda_layer.arn]
-
-#   tracing_config {
-#     mode = "Active" # Enable X-Ray tracing
-#   }
-}
-
-           ## Notifier Function
-
-
-data "archive_file" "notifier_archive" {
-  type        = "zip"
-  source_file = "${path.module}/boto3/notifier_lambda.py"
-  output_path = "${path.module}/boto3/notifier_lambda.zip"
-}
+# data "archive_file" "data_analyzer_archive" {
+#   type        = "zip"
+#   source_file = "${path.module}/boto3/data_analyzer_lambda.py"
+#   output_path = "${path.module}/boto3/data_analyzer_lambda.zip"
+# }
 
 
 
-resource "aws_lambda_function" "notifier_function" {
- filename         = data.archive_file.notifier_archive.output_path
-  source_code_hash = data.archive_file.notifier_archive.output_base64sha256
-  function_name = "notifier_function"
-  role          = aws_iam_role.lambda_iam_role.arn
-  handler       = "notifier_lambda.lambda_handler"
-  runtime       = "python3.12"
+# resource "aws_lambda_function" "data_analyzer_function" {
+#    filename         = data.archive_file.data_analyzer_archive.output_path
+#   source_code_hash = data.archive_file.data_analyzer_archive.output_base64sha256
+#   function_name = "data_analyzer_function"
+#   role          = aws_iam_role.lambda_iam_role.arn
+#   handler       = "data_analyzer_lambda.lambda_handler"
+#   runtime       = "python3.12"
 
-  layers = [aws_lambda_layer_version.lambda_layer.arn]
+#   layers = [aws_lambda_layer_version.lambda_layer.arn]
 
-#   tracing_config {
-#     mode = "Active" # Enable X-Ray tracing
-#   }
-}
+# #   tracing_config {
+# #     mode = "Active" # Enable X-Ray tracing
+# #   }
+# }
+
+#            ## Notifier Function
+
+
+# data "archive_file" "notifier_archive" {
+#   type        = "zip"
+#   source_file = "${path.module}/boto3/notifier_lambda.py"
+#   output_path = "${path.module}/boto3/notifier_lambda.zip"
+# }
+
+
+
+# resource "aws_lambda_function" "notifier_function" {
+#  filename         = data.archive_file.notifier_archive.output_path
+#   source_code_hash = data.archive_file.notifier_archive.output_base64sha256
+#   function_name = "notifier_function"
+#   role          = aws_iam_role.lambda_iam_role.arn
+#   handler       = "notifier_lambda.lambda_handler"
+#   runtime       = "python3.12"
+
+#   layers = [aws_lambda_layer_version.lambda_layer.arn]
+
+# #   tracing_config {
+# #     mode = "Active" # Enable X-Ray tracing
+# #   }
+# }
+
+###############################################
 
 
 ## Lambda Role 
@@ -131,11 +135,11 @@ resource "aws_iam_policy" "iam_policy" {
             
             } , 
 
-            {
-              Effect: "Allow" ,
-              Action: ["dynamodb:PutItem" , "dynamodb:GetItem"],
-              Resource= "${var.dynamoDb_table}"   
-            },
+            # {
+            #   Effect: "Allow" ,
+            #   Action: ["dynamodb:PutItem" , "dynamodb:GetItem"],
+            #   Resource= "${var.dynamoDb_table}"   
+            # },
             {
                 Effect: "Allow",
                 Action: ["bedrock:InvokeModel"],
@@ -172,7 +176,7 @@ resource "aws_lambda_permission" "s3_data_ingestor" {
 }
 
 resource "aws_s3_bucket_notification" "upload_trigger" {
-bucket =  var.aws_s3_bucket_id
+bucket =  var.aws_s3_bucket_name
 
 lambda_function {
        lambda_function_arn = aws_lambda_function.data_ingestor_function.arn
@@ -183,30 +187,35 @@ lambda_function {
 
   
 
-## Triggered while the data is uploaded to processed/ 
+#   #################################################
 
-  resource "aws_lambda_permission" "s3_data_analyzer" {
-    statement_id = "AllowS3InvokeIngestor"
-    action = "lambda:InvokeFunction"
-    function_name = aws_lambda_function.data_analyzer_function.function_name
-    principal = "s3:amazonaws.com"
-    source_arn = var.aws_s3_bucket_arn
+# ## Triggered while the data is uploaded to processed/ 
+
+#   resource "aws_lambda_permission" "s3_data_analyzer" {
+#     statement_id = "AllowS3InvokeIngestor"
+#     action = "lambda:InvokeFunction"
+#     function_name = aws_lambda_function.data_analyzer_function.function_name
+#     principal = "s3:amazonaws.com"
+#     source_arn = var.aws_s3_bucket_arn
   
-}
+# }
 
-resource "aws_s3_bucket_notification" "bedrock_trigger" {
-bucket =  var.aws_s3_bucket_id
+# resource "aws_s3_bucket_notification" "bedrock_trigger" {
+# bucket =  var.aws_s3_bucket_name
 
-lambda_function {
-       lambda_function_arn = aws_lambda_function.data_analyzer_function.arn
-       filter_prefix = "processed/"
-       events = [ "s3:ObjectCreated:*" ]
-}
-}
+# lambda_function {
+#        lambda_function_arn = aws_lambda_function.data_analyzer_function.arn
+#        filter_prefix = "processed/"
+#        events = [ "s3:ObjectCreated:*" ]
+# }
+# }
 
+# #############################################
 
 ## Triggered for notification 
 ## Triggered After the DynamoDB database is filled. 
+
+# (the logic is changed to EVENT BRIDGE)
 
 
 
