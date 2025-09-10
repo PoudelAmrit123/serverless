@@ -9,3 +9,18 @@ variable "lambda_function_arn" {
     default = "string"
   
 }
+
+
+
+
+variable "notifier_lambda_arn" {
+    description = "the notifier lambda arn"
+    default = "string"
+  
+}
+
+variable "notifier_lambda_name" {
+    description = "the notifier lambda name "
+    default = "string"
+  
+}

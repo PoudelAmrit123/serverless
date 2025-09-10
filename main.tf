@@ -17,11 +17,17 @@ module "lambda" {
 module "eventbridge" {
   source = "./event_bridge"
   lambda_function_arn =  module.lambda.data_analyzer_function_arn
-  lambda_function_name = module.lambda.data_analyzer_function_function_name
+  lambda_function_name = module.lambda.data_analyzer_function_function_name 
+  notifier_lambda_arn = module.lambda.notifier_lambda_arn
+  notifier_lambda_name = module.lambda.notifier_lambda_name
 
 }
 
 module "dynamodb" {
   source = "./dynamoDb"
   
+}
+
+module "ses" {
+  source = "./SES" 
 }

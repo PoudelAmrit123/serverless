@@ -74,28 +74,28 @@ resource "aws_lambda_function" "data_analyzer_function" {
 #            ## Notifier Function
 
 
-# data "archive_file" "notifier_archive" {
-#   type        = "zip"
-#   source_file = "${path.module}/boto3/notifier_lambda.py"
-#   output_path = "${path.module}/boto3/notifier_lambda.zip"
-# }
+data "archive_file" "notifier_archive" {
+  type        = "zip"
+  source_file = "${path.module}/boto3/notifier_lambda.py"
+  output_path = "${path.module}/boto3/notifier_lambda.zip"
+}
 
 
 
-# resource "aws_lambda_function" "notifier_function" {
-#  filename         = data.archive_file.notifier_archive.output_path
-#   source_code_hash = data.archive_file.notifier_archive.output_base64sha256
-#   function_name = "notifier_function"
-#   role          = aws_iam_role.lambda_iam_role.arn
-#   handler       = "notifier_lambda.lambda_handler"
-#   runtime       = "python3.12"
+resource "aws_lambda_function" "notifier_function" {
+ filename         = data.archive_file.notifier_archive.output_path
+  source_code_hash = data.archive_file.notifier_archive.output_base64sha256
+  function_name = "notifier_function"
+  role          = aws_iam_role.lambda_iam_role.arn
+  handler       = "notifier_lambda.lambda_handler"
+  runtime       = "python3.12"
 
-#   layers = [aws_lambda_layer_version.lambda_layer.arn]
+  # layers = [aws_lambda_layer_version.lambda_layer.arn]
 
-# #   tracing_config {
-# #     mode = "Active" # Enable X-Ray tracing
-# #   }
-# }
+#   tracing_config {
+#     mode = "Active" # Enable X-Ray tracing
+#   }
+}
 
 ###############################################
 
@@ -162,6 +162,12 @@ resource "aws_iam_policy" "iam_policy" {
           "dynamodb:UpdateItem"
         ],
         Resource = "arn:aws:dynamodb:us-east-1:702865854817:table/BedrockResults"
+      },
+
+      {
+        Effect = "Allow",
+        Action = "events:PutEvents",
+        Resource = "*"
       }
     ]
   })

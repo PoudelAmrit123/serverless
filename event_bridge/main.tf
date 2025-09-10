@@ -31,3 +31,30 @@
         principal     = "events.amazonaws.com"
         source_arn    = aws_cloudwatch_event_rule.s3_processed_rule.arn
         }
+
+
+### event bridge to trigger the notificatoin part 
+
+
+        resource "aws_cloudwatch_event_rule" "notifier_rule" {
+        name        = "bedrock_completed_rule"
+        description = "Trigger Notifier Lambda when Bedrock Lambda completes"
+        event_pattern = jsonencode({
+            "source": ["my.data.analyzer"],
+            "detail-type": ["DataAnalysisCompleted"]
+        })
+        }
+
+        resource "aws_cloudwatch_event_target" "notifier_lambda_target" {
+        rule      = aws_cloudwatch_event_rule.notifier_rule.name
+        target_id = "NotifierLambda"
+        arn       = var.notifier_lambda_arn
+        }
+
+        resource "aws_lambda_permission" "allow_eventbridge_notifier" {
+        statement_id  = "AllowExecutionFromEventBridgeNotifier"
+        action        = "lambda:InvokeFunction"
+        function_name = var.notifier_lambda_name
+        principal     = "events.amazonaws.com"
+        source_arn    = aws_cloudwatch_event_rule.notifier_rule.arn
+        }

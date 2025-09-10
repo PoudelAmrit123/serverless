@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 s3_client = boto3.client("s3")
+eventbridge = boto3.client("events")
 bedrock = boto3.client("bedrock-runtime")
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("BedrockResults")
@@ -189,6 +190,19 @@ def lambda_handler(event, context):
             "output_token": output_token
         }
     )
+
+    eventbridge.put_events(
+    Entries=[{
+        "Source": "my.data.analyzer",
+        "DetailType": "DataAnalysisCompleted",
+        "Detail": json.dumps({
+            "correlation_id": correlation_id,
+            "s3_bucket": bucket_name,
+            "s3_key": output_key
+        }),
+        "EventBusName": "default"
+    }]
+)
 
     return {
         "status": "success",
