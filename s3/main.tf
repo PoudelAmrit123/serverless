@@ -1,6 +1,7 @@
 resource "aws_s3_bucket" "s3_bucket" {
 
     bucket = "amrit-s3-bucket-lf"
+    force_destroy = true
 
     tags = {
       Name = "Amrit" ,

@@ -13,3 +13,15 @@ module "lambda" {
 
   
 }
+
+module "eventbridge" {
+  source = "./event_bridge"
+  lambda_function_arn =  module.lambda.data_analyzer_function_arn
+  lambda_function_name = module.lambda.data_analyzer_function_function_name
+
+}
+
+module "dynamodb" {
+  source = "./dynamoDb"
+  
+}
