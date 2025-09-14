@@ -92,7 +92,59 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "logs:PutLogEvents"
   ],
   Resource = "*"
-}
+} ,
+ # CloudWatch Logs for build logs
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "*"
+      },
+
+      # IAM management
+      {
+        Effect = "Allow",
+        Action = ["iam:*"],
+        Resource = "*"
+      },
+
+      # SES management
+      {
+        Effect = "Allow",
+        Action = ["ses:*"],
+        Resource = "*"
+      },
+
+      # DynamoDB management
+      {
+        Effect = "Allow",
+        Action = ["dynamodb:*"],
+        Resource = "*"
+      },
+
+      # Lambda management
+      {
+        Effect = "Allow",
+        Action = ["lambda:*"],
+        Resource = "*"
+      },
+
+      # EventBridge management
+      {
+        Effect = "Allow",
+        Action = ["events:*"],
+        Resource = "*"
+      },
+
+      # CodeStar/CodeConnections
+      {
+        Effect = "Allow",
+        Action = ["codeconnections:*"],
+        Resource = "*"
+      }
     
    
 
