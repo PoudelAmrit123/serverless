@@ -20,7 +20,7 @@ phases:
       - terraform fmt -check
       - terraform validate
 
-  deploy:
+  post_build:
     commands:
       - echo "Deploying with Terraform..."
       - terraform plan
