@@ -122,8 +122,7 @@ def lambda_handler(event, context):
 
     prompt = """
     
-    Find the salesprice  , listedPrice of the book with the name 'Island Time: Speed and the Archipelago from St. Kitts and Nevis (Chicago Studies in Ethnomusicology)' .
-    Say "Not available is not found if not "  
+    according to the given data which book is the best one that have good rating and also not that cheap provide you top 5 pick and why and choose one of those 5 pick  
     
     """
 
