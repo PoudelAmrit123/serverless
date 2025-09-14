@@ -1,16 +1,17 @@
-  version: 0.2
+version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.12
     commands:
-      - echo "Installing dependencies..."
-      - pip install -r requirements.txt -t .
+      - echo "Installing dependencies (if any)..."
   build:
     commands:
-      - echo "Build phase - packaging lambda code"
-      - zip -r build_output.zip .
+      - echo "Build started on `date`"
+      - echo "Hello from CodeBuild!"
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+
 artifacts:
   files:
-    - build_output.zip
+    - '**/*'
