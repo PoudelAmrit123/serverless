@@ -122,7 +122,9 @@ def lambda_handler(event, context):
 
     prompt = """
     
-    according to the given data which book is the best one among Great Battles for Boys The American Revolutionse and Gödel, Escher, Bach: An Eternal Golden Braid if i am new to the histroy mind its price its rating  and easiyne to the people who are new to the history book.
+    according to the given data which book is the best one among 
+    'Great Battles for Boys The American Revolutionse' and 
+    'Gödel, Escher, Bach: An Eternal Golden Braid'  if i am new to the histroy mind its price its rating  and easiyne to the people who are new to the history book.
     
     """
 
