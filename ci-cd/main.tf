@@ -62,7 +62,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
   "s3:DeleteObject",
   "s3:ListBucket",
   "s3:GetBucketVersioning",
-  "s3:GetBucketAcl"
+  "s3:GetBucketAcl",
+   "s3:GetBucketPolicy" 
 
         ],
         Resource = [
