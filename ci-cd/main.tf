@@ -79,7 +79,14 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "s3:GetBucketCors",
           "s3:ListBucket",
           "s3:GetBucketWebsite",
-          "s3:GetAccelerateConfiguration"
+          "s3:GetAccelerateConfiguration",
+          "s3:GetBucketRequestPayment",
+          "s3:GetBucketReplication",
+          "s3:GetBucketTagging",
+          "s3:GetBucketLogging",
+          "s3:GetEncryptionConfiguration",
+          "s3:GetLifecycleConfiguration",
+          "s3:GetEncryptionConfiguration"
         ],
         Resource = [
           var.backend_bucket_arn,
