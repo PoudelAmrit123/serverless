@@ -144,7 +144,12 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "sns:Publish",
     "sns:ListTopics" ,
       "sns:GetTopicAttributes",
-        "sns:ListTagsForResource"
+        "sns:ListTagsForResource",
+           "cloudwatch:PutMetricAlarm",
+    "cloudwatch:DescribeAlarms",
+    "cloudwatch:DeleteAlarms",
+    "cloudwatch:PutMetricData",
+    "cloudwatch:GetMetricData"
   ]
   Resource = "*"
 }
