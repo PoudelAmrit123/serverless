@@ -226,7 +226,8 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "s3:PutObject",
           "s3:DeleteObject",
           "s3:GetBucketVersioning",
-          "s3:ListBucket"
+          "s3:ListBucket" ,
+           "s3:GetBucketPolicy" 
         ],
         Resource = [
           "${aws_s3_bucket.codepipeline_s3_bucket.arn}",
