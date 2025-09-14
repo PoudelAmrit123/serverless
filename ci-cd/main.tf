@@ -82,7 +82,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "s3:GetAccelerateConfiguration",
           "s3:GetBucketRequestPayment",
           "s3:GetBucketReplication",
-          "s3:GetBucketTagging",
+          "s3:GetBucketTagging",    
           "s3:GetBucketLogging",
           "s3:GetEncryptionConfiguration",
           "s3:GetLifecycleConfiguration",
@@ -99,7 +99,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Resource = [
           var.backend_bucket_arn,
           var.s3_main_bucket_arn,
-          aws_s3_bucket.codepipeline_s3_bucket.arn
+          aws_s3_bucket.codepipeline_s3_bucket.arn,
+          aws_codepipeline.codepipeline_project.arn
         ]
       },
       # CodeBuild project permissions
