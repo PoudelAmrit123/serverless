@@ -57,12 +57,17 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
       {
         Effect = "Allow",
         Action = [
-          "s3:GetObject",
-          "s3:PutObject" ,
+         "s3:GetObject",
+  "s3:PutObject",
+  "s3:DeleteObject",
+  "s3:ListBucket",
+  "s3:GetBucketVersioning",
+  "s3:GetBucketAcl"
 
         ],
         Resource = [
-          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*"
+          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*" ,
+          "amrit-s3-backend-bucket-lf/*"
         ]
       },
       {
@@ -168,7 +173,8 @@ resource "aws_iam_policy" "codepipeline_policy" {
         ],
         Resource = [
           "${aws_s3_bucket.codepipeline_s3_bucket.arn}",
-          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*"
+          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*",
+           "amrit-s3-backend-bucket-lf/*"
         ]
       },
       # Allow CodePipeline to trigger CodeBuild
