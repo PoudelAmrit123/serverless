@@ -4,20 +4,12 @@ phases:
   install:
     commands:
       - echo "Installing OS dependencies..."
-      - yum install -y make zip unzip wget gcc gcc-c++ bzip2 bzip2-devel xz-devel libffi-devel zlib-devel || true
-      - echo "Downloading and installing Python 3.12..."
-      - wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz
-      - tar xvf Python-3.12.0.tgz
-      - cd Python-3.12.0
-      - ./configure --enable-optimizations
-      - make -j$(nproc)
-      - make altinstall
-      - cd ..
-      - python3.12 --version
-      - echo "Installing Terraform..."
+      - yum install -y make zip unzip wget || true
+      - echo "Terraform..."
       - wget https://releases.hashicorp.com/terraform/1.13.2/terraform_1.13.2_linux_amd64.zip
       - unzip terraform_1.13.2_linux_amd64.zip -d /usr/local/bin/
       - terraform -version
+      - python3 --version
 
   build:
     commands:
