@@ -94,7 +94,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
             "codepipeline:GetPipelineState",
             "codepipeline:ListPipelines",
             "s3:GetBucketOwnershipControls" ,
-            "s3:GetObjectVersion"
+            "s3:GetObjectVersion",
+            "codepipeline:ListTagsForResource"
         ],
         Resource = [
           var.backend_bucket_arn,
