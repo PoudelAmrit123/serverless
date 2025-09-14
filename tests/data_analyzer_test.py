@@ -7,7 +7,7 @@ import sys, os
 # Ensure Python can find your Lambda file
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lambda/boto3"))
 
-from data_ingestor_lambda import lambda_handler
+from data_analyzer_lambda import lambda_handler
 
 # ----------- Helper to create fake S3 events -----------------
 def make_event(bucket="test-bucket", key="processed/selected_data.json"):
