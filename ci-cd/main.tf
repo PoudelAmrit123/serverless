@@ -104,7 +104,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Resource = "*"
       },
 
-      # IAM management
+      # IAM 
       {
         Effect = "Allow",
         Action = ["iam:*"],
