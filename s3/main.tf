@@ -34,6 +34,68 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
   
 }
 
+## Bucket for backned 
+
+
+resource "aws_s3_bucket" "s3_backend_bucket" {
+
+    bucket = "amrit-s3-backend-bucket-lf"
+    force_destroy = true
+
+    tags = {
+      Name = "Amrit" ,
+      Project = "Assignment"
+    }
+  
+}
+
+resource "aws_s3_bucket_versioning" "aws_s3_backend_bucket_versioning" {
+    bucket = aws_s3_bucket.s3_backend_bucket.id
+    versioning_configuration {
+      status = "Enabled"
+    }
+  
+}
+
+## Enabling the encryption
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "backend_s3_encryption" {
+    bucket = aws_s3_bucket.s3_backend_bucket.id
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+
+  
+}
+
+##TODO: Add the codebuild role arn here for backend bucket access 
+
+# resource "aws_s3_bucket_policy" "s3_backend_bucket_policy" {
+#   bucket = aws_s3_bucket.s3_backend_bucket.id
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#         {
+#             Effect = "Allow" 
+#               Principal = "*"
+#             Action = [
+#                   "s3:GetObject",
+#           "s3:PutObject",
+#           "s3:DeleteObject",
+#           "s3:ListBucket"
+#             ]
+#             Resource = [
+#           aws_s3_bucket.s3_backend_bucket.arn,
+#           "${aws_s3_bucket.s3_backend_bucket.arn}/*"
+#         ]
+#         }
+#     ]
+#   })  
+# }
+
+
 
 ## Bucket Policy Allowing only  the Lambda function to be able to access the bucekt 
 ## Change the Pricipal to the lambda ROLE ARN. 
