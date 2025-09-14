@@ -23,7 +23,7 @@ def make_event(bucket="test-bucket", key="processed/selected_data.json"):
     }
 
 # ----------- Test: skipped file (wrong key) -----------------
-@patch("data_ingestor_lambda.s3_client")
+@patch("data_analyzer_lambda.s3_client")
 def test_skips_if_not_target_file(mock_s3):
     event = make_event(key="raw/some_other_file.json")
     result = lambda_handler(event, {})
@@ -31,10 +31,10 @@ def test_skips_if_not_target_file(mock_s3):
     assert "correlation_id" in result
 
 # ----------- Test: normal processing flow -------------------
-@patch("data_ingestor_lambda.eventbridge")
-@patch("data_ingestor_lambda.table")
-@patch("data_ingestor_lambda.bedrock")
-@patch("data_ingestor_lambda.s3_client")
+@patch("data_analyzer_lambda.eventbridge")
+@patch("data_analyzer_lambda.table")
+@patch("data_analyzer_lambda.bedrock")
+@patch("data_analyzer_lambda.s3_client")
 def test_success_processing(mock_s3, mock_bedrock, mock_table, mock_eventbridge):
     event = make_event()
 
@@ -84,7 +84,7 @@ def test_success_processing(mock_s3, mock_bedrock, mock_table, mock_eventbridge)
 
 # ----------- Test: extract_summary and extract_usage fail gracefully -----
 def test_extract_summary_usage_error_handling():
-    from data_ingestor_lambda import extract_summary, extract_usage
+    from data_analyzer_lambda import extract_summary, extract_usage
     bad_data = {"output": {"message": {"content": None}}}
 
     assert extract_summary(bad_data) is None
