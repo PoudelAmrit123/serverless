@@ -50,51 +50,51 @@ resource "aws_iam_role" "codebuild_iam_role" {
 }
 
 resource "aws_iam_policy" "codebuild_iam_policy" {
-  name = "codebuild_iam_role_policy_s3"
+  name = "codebuild_iam_role_policy_s3_full"
+
   policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [
+    Version = "2012-10-17",
+    Statement = [
+      # S3 bucket object-level permissions
       {
         Effect = "Allow",
         Action = [
-         "s3:GetObject",
-  "s3:PutObject",
-  "s3:DeleteObject",
-  "s3:ListBucket",
-  "s3:GetBucketVersioning",
-  "s3:GetBucketAcl",
-   "s3:GetBucketPolicy" 
-
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
         ],
         Resource = [
-          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*" ,
-          "arn:aws:s3:::amrit-s3-backend-bucket-lf/*" ,
-           "arn:aws:s3:::amrit-s3-backend-bucket-lf"
-           
+          "${var.backend_bucket_arn}/*",
+          "${var.s3_main_bucket_arn}/*",
+          "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*"
         ]
       },
+      # S3 bucket-level permissions
       {
         Effect = "Allow",
         Action = [
-          "s3:ListBucket" ,
-           "s3:GetBucketVersioning",
-    "s3:GetBucketAcl"
+          "s3:GetBucketPolicy",
+          "s3:GetBucketAcl",
+          "s3:GetBucketVersioning",
+          "s3:GetBucketCors",
+          "s3:ListBucket"
         ],
         Resource = [
-          "${aws_s3_bucket.codepipeline_s3_bucket.arn}" ,
-          
+          var.backend_bucket_arn,
+          var.s3_main_bucket_arn,
+          aws_s3_bucket.codepipeline_s3_bucket.arn
         ]
-      } ,
+      },
+      # CodeBuild project permissions
       {
-  Effect = "Allow",
-  Action = [
-    "logs:CreateLogGroup",
-    "logs:CreateLogStream",
-    "logs:PutLogEvents"
-  ],
-  Resource = "*"
-} ,
- # CloudWatch Logs for build logs
+        Effect = "Allow",
+        Action = [
+          "codebuild:BatchGetProjects",
+          "codebuild:StartBuild"
+        ],
+        Resource = "*"
+      },
+      # Logging
       {
         Effect = "Allow",
         Action = [
@@ -104,51 +104,19 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         ],
         Resource = "*"
       },
-
-      # IAM 
+      # Additional permissions (Lambda, DynamoDB, SES, Events)
       {
         Effect = "Allow",
-        Action = ["iam:*"],
-        Resource = "*"
-      },
-
-      # SES management
-      {
-        Effect = "Allow",
-        Action = ["ses:*"],
-        Resource = "*"
-      },
-
-      # DynamoDB management
-      {
-        Effect = "Allow",
-        Action = ["dynamodb:*"],
-        Resource = "*"
-      },
-
-      # Lambda management
-      {
-        Effect = "Allow",
-        Action = ["lambda:*"],
-        Resource = "*"
-      },
-
-      # EventBridge management
-      {
-        Effect = "Allow",
-        Action = ["events:*"],
-        Resource = "*"
-      },
-
-      # CodeStar/CodeConnections
-      {
-        Effect = "Allow",
-        Action = ["codeconnections:*"],
+        Action = [
+          "lambda:*",
+          "dynamodb:*",
+          "ses:*",
+          "events:*",
+          "codeconnections:*",
+          "iam:*"
+        ],
         Resource = "*"
       }
-    
-   
-
     ]
   })
 }
@@ -234,7 +202,9 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "${aws_s3_bucket.codepipeline_s3_bucket.arn}",
           "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*",
            "arn:aws:s3:::amrit-s3-backend-bucket-lf/*",
-           "arn:aws:s3:::amrit-s3-backend-bucket-lf"
+           "arn:aws:s3:::amrit-s3-backend-bucket-lf" ,
+            "arn:aws:s3:::amrit-s3-bucket-lf/*",
+            
         ]
       },
       # Allow CodePipeline to trigger CodeBuild

@@ -34,5 +34,7 @@ module "ses" {
 }
 
 module "cicd" {
-  source = "./ci-cd"
+  source = "./ci-cd" 
+  backend_bucket_arn =   module.s3.backend_bucket_arn
+  s3_main_bucket_arn = module.s3.bucket_arn  
 }

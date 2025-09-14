@@ -8,3 +8,8 @@ output "bucket_arn" {
   
 # }
 
+output "backend_bucket_arn" {
+    value = aws_s3_bucket.s3_backend_bucket.arn
+  
+}
+
