@@ -49,7 +49,7 @@ def test_success_with_valid_and_invalid_rows(mock_s3):
     event = make_event()
     mock_s3.head_object.side_effect = [
         {"ETag": '"9999"'},
-        {"Metadata": {"source-etag": "old"}}
+        {"Metadata": {}}
     ]
     csv_data = (
         "name,salePrice,rating,reviewCount,nodeName\n"
