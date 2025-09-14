@@ -11,7 +11,7 @@ resource "aws_sns_topic_subscription" "lambda_alerts_email" {
 resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   for_each = toset(var.lambda_names)
 
-  alarm_name          = "nepse-${each.key}-error-alarm"
+  alarm_name          = "book-${each.key}-error-alarm"
   alarm_description   = "Alarm when ${each.key} Lambda has errors > 0"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
 resource "aws_cloudwatch_metric_alarm" "lambda_memory_alarm" {
   for_each = toset(var.lambda_names)
 
-  alarm_name          = "nepse-${each.key}-memory-alarm"
+  alarm_name          = "book-${each.key}-memory-alarm"
   alarm_description   = "Alarm when ${each.key} Lambda memory usage exceeds 80%"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
