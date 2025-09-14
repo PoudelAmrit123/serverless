@@ -135,7 +135,17 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "iam:*"
         ],
         Resource = "*"
-      }
+      } ,
+      {
+  Effect = "Allow"
+  Action = [
+    "sns:CreateTopic",
+    "sns:Subscribe",
+    "sns:Publish",
+    "sns:ListTopics"
+  ]
+  Resource = "*"
+}
     ]
   })
 }
