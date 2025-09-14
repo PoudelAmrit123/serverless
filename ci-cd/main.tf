@@ -78,7 +78,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "s3:GetBucketVersioning",
           "s3:GetBucketCors",
           "s3:ListBucket",
-          "s3:GetBucketWebsite"
+          "s3:GetBucketWebsite",
+          "s3:GetAccelerateConfiguration"
         ],
         Resource = [
           var.backend_bucket_arn,
