@@ -122,7 +122,7 @@ def lambda_handler(event, context):
 
     prompt = """
     
-    according to the given data which book is the best one that have good rating and also not that cheap provide you top 5 pick and why and choose one of those 5 pick  
+    according to the given data which book is the best one among Great Battles for Boys The American Revolutionse and Gödel, Escher, Bach: An Eternal Golden Braid if i am new to the histroy mind its price its rating  and easiyne to the people who are new to the history book.
     
     """
 
