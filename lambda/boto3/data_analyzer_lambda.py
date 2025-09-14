@@ -122,7 +122,7 @@ def lambda_handler(event, context):
 
     prompt = """
     
-    Find the salesprice  , listedPrice of the book with the name 'The Organization of Information (Library and Information Science Text Series' .
+    Find the salesprice  , listedPrice of the book with the name 'Island Time: Speed and the Archipelago from St. Kitts and Nevis (Chicago Studies in Ethnomusicology)' .
     Say "Not available is not found if not "  
     
     """
