@@ -88,7 +88,13 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "s3:GetLifecycleConfiguration",
           "s3:GetEncryptionConfiguration",
           "s3:GetReplicationConfiguration" ,
-          "s3:GetBucketObjectLockConfiguration" 
+          "s3:GetBucketObjectLockConfiguration" ,
+           "codepipeline:GetPipeline",
+           "s3:GetBucketNotification",
+            "codepipeline:GetPipelineState",
+            "codepipeline:ListPipelines",
+            "s3:GetBucketOwnershipControls" ,
+            "s3:GetObjectVersion"
         ],
         Resource = [
           var.backend_bucket_arn,
