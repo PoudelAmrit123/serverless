@@ -159,6 +159,7 @@ resource "aws_iam_policy" "iam_policy" {
         Effect = "Allow",
         Action = [
           "dynamodb:PutItem",
+          "dynamodb:GetItem",
           "dynamodb:UpdateItem"
         ],
         Resource = "arn:aws:dynamodb:us-east-1:702865854817:table/BedrockResults"
@@ -167,6 +168,16 @@ resource "aws_iam_policy" "iam_policy" {
       {
         Effect = "Allow",
         Action = "events:PutEvents",
+        Resource = "*"
+      } ,
+
+       {
+        Effect   = "Allow"
+        Action   = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        # Resource = "arn:aws:ses:us-east-1:${data.aws_caller_identity.current.account_id}:identity/officalamritpoudel433@gmail.com"
         Resource = "*"
       }
     ]

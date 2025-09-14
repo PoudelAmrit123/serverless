@@ -111,7 +111,7 @@ def lambda_handler(event, context):
             # "additionalProperties": r.get("additionalProperties"),
             "name": r.get("name")
         }
-        for r in data[:15]  # top 20 rows only, adjust as needed
+        for r in data[:10]  # top 20 rows only, adjust as needed
     ]
 
     # Clear, grounded prompt
@@ -122,8 +122,8 @@ def lambda_handler(event, context):
 
     prompt = """
     
-    Find the salesprice  , listedPrice of the book that have this 'When two teenagers break into a house on a remote lake in search of prescription drugs, what starts as a simple burglary tur…his thriller introduces listeners to a complicated new hero and forces us to consider the true nature of evil' in the descritpion field.
-    Say "Not available is not found"
+    Find the salesprice  , listedPrice of the book with the name 'The Organization of Information (Library and Information Science Text Series' .
+    Say "Not available is not found if not "  
     
     """
 
@@ -198,7 +198,8 @@ def lambda_handler(event, context):
         "Detail": json.dumps({
             "correlation_id": correlation_id,
             "s3_bucket": bucket_name,
-            "s3_key": output_key
+            "s3_key": output_key,
+            "timestamp": timestamp
         }),
         "EventBusName": "default"
     }]
@@ -207,7 +208,7 @@ def lambda_handler(event, context):
     return {
         "status": "success",
         "correlation_id": correlation_id,
-        "s3_output": output_key
+        "s3_output": output_key 
     }
 
 

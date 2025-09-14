@@ -10,7 +10,7 @@ from datetime import datetime
 s3_client = boto3.client("s3")
 
 # ---------- CONFIG ----------
-TARGET_SUB_CATEGORY = "Biographies & Memoirs"
+TARGET_SUB_CATEGORY = "History"
 COLUMNS_TO_DROP = {
     'descriptionRaw', 'sku', 'style', 'url', 'variants',
     'gtin', 'mpn', 'scrapedDate', 'imageUrls', 'new_path',
