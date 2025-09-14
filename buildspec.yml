@@ -12,6 +12,13 @@ phases:
       - unzip terraform_1.13.2_linux_amd64.zip -d /usr/local/bin/
       - terraform -version
       - python3 --version
+      - echo "Installing Python dependencies..."
+      - pip3 install --upgrade pip
+      - pip3 install -r requirements-dev.txt  
+  pre_build:
+    commands: 
+      - echo "Running Python unit tests..."
+      - pytest tests/ --junitxml=test-results/results.xml
 
   build:
     commands:
