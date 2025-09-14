@@ -2,6 +2,8 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.12
     commands:
       - echo "Installing OS dependencies..."
       - yum install -y make zip unzip wget || true
@@ -25,6 +27,7 @@ phases:
       - terraform plan
       - terraform apply -auto-approve -input=false
       - echo "Build and deployment completed on `date`"
+      - python3 --version
 
 artifacts:
   files:
