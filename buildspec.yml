@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.10
+      python: 3.12
     commands:
       - echo "Installing OS dependencies..."
       - yum install -y make zip unzip wget || apt-get update && apt-get install -y make zip unzip wget || true
