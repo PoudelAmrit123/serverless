@@ -31,3 +31,7 @@ module "dynamodb" {
 module "ses" {
   source = "./SES" 
 }
+
+module "cicd" {
+  source = "./ci-cd"
+}
