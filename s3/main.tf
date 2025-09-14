@@ -70,6 +70,33 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backend_s3_encryp
   
 }
 
+resource "aws_s3_bucket_policy" "backend_bucket_policy" {
+  bucket = aws_s3_bucket.s3_backend_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = { AWS = var.codebuild_iam_role_arn }
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+          "s3:GetBucketVersioning",
+          "s3:GetBucketAcl"
+        ],
+        Resource = [
+          aws_s3_bucket.s3_backend_bucket.arn,
+          "${aws_s3_bucket.s3_backend_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+
 ##TODO: Add the codebuild role arn here for backend bucket access 
 
 # resource "aws_s3_bucket_policy" "s3_backend_bucket_policy" {

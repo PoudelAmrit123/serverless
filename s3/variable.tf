@@ -3,3 +3,9 @@ variable "lambda_role_arn" {
     type = string
   
 }
+
+variable "codebuild_iam_role_arn" {
+    description = "codebuild iam role arn"
+    type = string
+  
+}

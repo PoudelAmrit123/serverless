@@ -69,6 +69,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "${aws_s3_bucket.codepipeline_s3_bucket.arn}/*" ,
           "arn:aws:s3:::amrit-s3-backend-bucket-lf/*" ,
            "arn:aws:s3:::amrit-s3-backend-bucket-lf"
+           
         ]
       },
       {

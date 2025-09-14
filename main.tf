@@ -2,6 +2,7 @@ module "s3" {
 
     source = "./s3"
 lambda_role_arn = module.lambda.lambda_role_arn
+codebuild_iam_role_arn = module.cicd.codebuild_iam_role_arn
 }
 
 
