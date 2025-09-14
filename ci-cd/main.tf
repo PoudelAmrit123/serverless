@@ -142,7 +142,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "sns:CreateTopic",
     "sns:Subscribe",
     "sns:Publish",
-    "sns:ListTopics"
+    "sns:ListTopics" ,
+      "sns:GetTopicAttributes"
   ]
   Resource = "*"
 }
