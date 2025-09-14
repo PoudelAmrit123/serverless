@@ -14,7 +14,7 @@ phases:
   build:
     commands:
       - echo "Running Terraform validation..."
-      - terraform init -input=false
+      - terraform init -input=false -upgrade
       - terraform fmt -recursive
       - terraform fmt -check
       - terraform validate
