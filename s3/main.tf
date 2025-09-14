@@ -91,7 +91,9 @@ resource "aws_s3_bucket_policy" "backend_bucket_policy" {
           aws_s3_bucket.s3_backend_bucket.arn,
           "${aws_s3_bucket.s3_backend_bucket.arn}/*"
         ]
-      }
+      } ,
+
+      
     ]
   })
 }
@@ -143,7 +145,25 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
                 "s3:PutObject"
             ]
             Resource = "${aws_s3_bucket.s3_bucket.arn}/*"
-        }
+        } ,
+        {
+        Effect = "Allow",
+        Principal = {
+          AWS = var.codebuild_iam_role_arn
+        },
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+          "s3:GetBucketVersioning",
+          "s3:GetBucketAcl"
+        ],
+        Resource = [
+          aws_s3_bucket.s3_bucket.arn,
+          "${aws_s3_bucket.s3_bucket.arn}/*"
+        ]
+      }
     ]
   })  
 }
