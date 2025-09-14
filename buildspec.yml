@@ -2,16 +2,35 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.10
     commands:
-      - echo "Installing dependencies (if any)..."
+      - echo "Installing OS dependencies..."
+      - yum install -y make zip unzip wget || apt-get update && apt-get install -y make zip unzip wget || true
+      - echo "Installing Terraform..."
+      - wget https://releases.hashicorp.com/terraform/1.13.2/terraform_1.13.2_linux_amd64.zip
+      - unzip terraform_1.13.2_linux_amd64.zip -d /usr/local/bin/
+      - terraform -version
+
   build:
     commands:
-      - echo "Build started on `date`"
-      - echo "Hello from CodeBuild!"
-  post_build:
+      - echo "Running Terraform validation..."
+      - terraform init -input=false
+      - terraform fmt -recursive
+      - terraform fmt -check
+      - terraform validate
+
+  deploy:
     commands:
-      - echo "Build completed on `date`"
+      - echo "Deploying with Terraform..."
+      - terraform plan
+      - terraform apply -auto-approve -input=false
+      - echo "Build and deployment completed on `date`"
 
 artifacts:
   files:
     - '**/*'
+  discard-paths: no
+  exclude-files:
+    - '.terraform/**'
+
