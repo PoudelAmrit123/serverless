@@ -14,7 +14,7 @@ phases:
       - python3 --version
       - echo "Installing Python dependencies..."
       - pip3 install --upgrade pip
-      - pip3 install -r requirements-dev.txt  
+      - pip3 install -r requirements.txt  
   pre_build:
     commands: 
       - echo "Running Python unit tests..."
