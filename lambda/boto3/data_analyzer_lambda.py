@@ -44,61 +44,6 @@ def lambda_handler(event, context):
     content = response['Body'].read().decode('utf-8')
     data = json.loads(content)
 
-    # Construct prompt
-    # prompt = f"Provide me the best audobook which is less then 5 dollar in price and have the rating of more than 4.5:\n{json.dumps(data, indent=2)}"
-
-    # prompt = "Provide me the best audiobook which is less than 5 dollar in price and have a rating of more than 4.5."
-    # prompt_with_data = f"{prompt}\n{json.dumps(data, indent=2)}"
-
-    # # Call Bedrock correctly
-    # bedrock_response = bedrock.invoke_model(
-    #     modelId="amazon.nova-micro-v1:0",
-    #     contentType="application/json",
-    #     accept="application/json",
-    #     body=json.dumps({
-    #         "messages": [
-    #             {
-    #                 "role": "user",
-    #                 "content": [
-    #                     {"text": prompt_with_data}
-    #                 ]
-    #             }
-    #         ]
-    #     })
-    # )
-
-
-    # prompt = "Provide me the best audiobook which is less than $5 in price and has a rating above 4.5."
-
-    
-    # data_context = f"""
-    # You are given a dataset in JSON format. Only use this dataset to answer.
-
-    # Dataset:
-    # {json.dumps(data, indent=2)}
-
-    # Task:
-    # {prompt}
-    # """
-
-    # bedrock_response = bedrock.invoke_model(
-    #     modelId="amazon.nova-micro-v1:0",
-    #     contentType="application/json",
-    #     accept="application/json",
-    #     body=json.dumps({
-    #         "messages": [
-             
-    #             {
-    #                 "role": "user",
-    #                 "content": [{"text": (
-    #                 "You are a data analysis assistant. Only use the provided dataset to answer. "
-    #                 "Do not rely on outside knowledge.\n\n"
-    #                 f"{data_context}"
-    #             )}]
-    #             }
-    #         ]
-    #     })
-    # )
 
 
 
@@ -120,13 +65,83 @@ def lambda_handler(event, context):
     # Say "Not available is not found"
     # """
 
-    prompt = """
+    # prompt = """
     
-    according to the given data which book is the best one among 
-    'Great Battles for Boys The American Revolutionse' and 
-    'Gödel, Escher, Bach: An Eternal Golden Braid'  if i am new to the histroy mind its price its rating  and easiyne to the people who are new to the history book.
+    # according to the given data which book is the best one among 
+    # 'Great Battles for Boys The American Revolutionse' and 
+    # 'Gödel, Escher, Bach: An Eternal Golden Braid'  if i am new to the histroy mind its price its rating  and easiyne to the people who are new to the history book.
     
-    """
+    # """
+
+
+    user_request= "Show me all books with price > 20 and rating < 4.0"
+
+
+
+    prompt = f"""
+You are a historian and educational reviewer. You are given structured JSON data about books in history, anthropology, and related fields. 
+Your task has two modes:
+1. **Structured Analysis Mode** (default)  
+If no direct filter question is asked, Organize your analysis into the following sections:
+
+OVERVIEW OF BOOKS  
+Give a short narrative description for each book, including its subject focus, author expertise, target readership, and relevance in the field. Keep it clear and concise.  
+
+COMPARATIVE HIGHLIGHTS  
+Discuss how the books differ and overlap in readability for newcomers, scholarly depth, affordability (prices), and popularity (ratings/reviews).  
+
+Ananomalies 
+Include this section only if something unusual stands out (e.g., exceptionally high/low price, unique bestseller rank, extraordinary ratings, or niche specialization).  
+If no such cases exist, omit this section entirely.  
+
+GUIDANCE FOR READERS  
+Offer 2–3 clear takeaways:  
+- Which book a beginner should start with,  
+- Which book is more suitable for advanced or academic readers,  
+- Which book offers the best balance of value and quality.  
+
+Return your answer as plain text, beginning each section with its heading in uppercase.  
+Do not include any extra sections beyond these.
+
+---
+
+Example Output Format:
+
+OVERVIEW OF BOOKS  
+"Laboratory Manual and Workbook for Biological Anthropology" provides hands-on exercises for students learning biological anthropology. Written by experienced educators, it is especially aimed at undergraduates and newcomers to the field.  
+"The Organization of Information" introduces principles of cataloging and metadata, written by seasoned library science scholars. It is designed for library professionals and students in information science.  
+
+COMPARATIVE HIGHLIGHTS  
+The anthropology manual emphasizes practical engagement and is easier for beginners, while the library science text is more theoretical and suited to professional training.  
+Both books are highly rated (4.6 vs 4.5), but the anthropology manual has more reviews, suggesting broader adoption.  
+Price-wise, they are in a similar range, though the anthropology manual is slightly higher.  
+
+Anomalies
+The library science book ranks #1 in its subcategory (Cataloging), marking it as a definitive reference in that area.  
+
+GUIDANCE FOR READERS  
+For newcomers to anthropology: start with "Laboratory Manual and Workbook for Biological Anthropology" for its structured exercises.  
+For advanced learners or professionals in information science: "The Organization of Information" offers deeper theoretical grounding.  
+For best balance of price and quality: "The Organization of Information" is slightly cheaper but nearly equal in quality.  
+
+
+
+2. **Direct Query Mode**  
+   If the user explicitly asks for a filtered condition (e.g., "Suggest me books with price over 50 and rating under 4.2"),  
+   skip the structured sections and directly return the exact matching books in a simple list format: 
+
+   If no matches are found, respond: "i'm sorry, but i can't provide specific details" 
+
+   The user request is {user}
+
+   Example:  
+   Books matching your request:  
+   - Title: "Book A", Price: 55.0, Rating: 4.0  
+   - Title: "Book B", Price: 62.5, Rating: 3.8 
+
+   
+"""
+
 
     prompt_with_data = f"{prompt}\n\nDataset:\n{json.dumps(filtered_rows, indent=2)}"
 

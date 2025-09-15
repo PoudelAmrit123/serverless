@@ -71,26 +71,26 @@ Include correlation ID, original prompt, result, token usage, and row counts.
       Rows → Valid: {valid_rows}, Invalid: {invalid_rows}
       """
     
-    summary = ""
-    try:
-        bedrock_response = bedrock.invoke_model(
-            modelId="amazon.nova-micro-v1:0",  # replace with your Bedrock model
-            body=json.dumps({
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [{"text": prompt_with_data}]
-                }
-            ]
-              }),
-            contentType="application/json",
-            accept="application/json"
-        )
-        summary_response = json.loads(bedrock_response["body"].read())
-        summary = summary_response.get("summary", "")
-    except Exception as e:
-        print("Bedrock summary call failed:", str(e))
-        summary = "Summary unavailable due to Bedrock error."
+    # summary = ""
+    # try:
+    #     bedrock_response = bedrock.invoke_model(
+    #         modelId="amazon.nova-micro-v1:0",  # replace with your Bedrock model
+    #         body=json.dumps({
+    #         "messages": [
+    #             {
+    #                 "role": "user",
+    #                 "content": [{"text": prompt_with_data}]
+    #             }
+    #         ]
+    #           }),
+    #         contentType="application/json",
+    #         accept="application/json"
+    #     )
+    #     summary_response = json.loads(bedrock_response["body"].read())
+    #     summary = summary_response.get("summary", "")
+    # except Exception as e:
+    #     print("Bedrock summary call failed:", str(e))
+    #     summary = "Summary unavailable due to Bedrock error."
 
     # ---- Build email ----
     if anomalies:

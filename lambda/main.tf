@@ -222,7 +222,7 @@ bucket =  var.aws_s3_bucket_name
 
 lambda_function {
        lambda_function_arn = aws_lambda_function.data_ingestor_function.arn
-       filter_prefix = "upload/"
+       filter_prefix = "input/"
        events = [ "s3:ObjectCreated:*" ]  
 }
   depends_on = [aws_lambda_permission.s3_data_ingestor]
