@@ -166,9 +166,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           
        
         ],
-        Resource = [
-           aws_iam_role.codebuild_iam_role.arn 
-           ]
+        Resource = "*"
       } ,
       #    {
       #   Effect = "Allow",
