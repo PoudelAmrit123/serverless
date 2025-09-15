@@ -27,25 +27,27 @@ def lambda_handler(event, context):
     else:
         raise ValueError("Unsupported event format: no detail or Records found")
 
-    # Only process the selected_data.json file
+    # Only process the selected_data.json file that come from data ingestor lambda function
     if not key.endswith("processed/selected_data.json"):
         print(f"Skipping key {key}, not the target file.")
         return {"status": "skipped", "correlation_id": correlation_id, "key": key}
 
-    # Fetch JSON file from S3
+    # Fetch  file from S3
     response = s3_client.get_object(Bucket=bucket_name, Key=key)
     metadata = response.get("Metadata", {})
 
+ ## Get the Correlation ID and Count.
     correlation_id = metadata.get("correlation_id", str(uuid.uuid4()))
-    # total_rows = int(metadata.get("total_rows", 0))
+  
     valid_count = int(metadata.get("valid_count", 0))
     invalid_count = int(metadata.get("invalid_count", 0))
-    total_rows = valid_count + invalid_count
+    total_rows = valid_count + invalid_count 
     content = response['Body'].read().decode('utf-8')
     data = json.loads(content)
 
 
 
+  ##  the limited rows from the dataset as the llm is not being able to handle
 
     filtered_rows = [
         {
@@ -56,7 +58,7 @@ def lambda_handler(event, context):
             # "additionalProperties": r.get("additionalProperties"),
             "name": r.get("name")
         }
-        for r in data[:10]  # top 20 rows only, adjust as needed
+        for r in data[:10]  
     ]
 
     # Clear, grounded prompt
@@ -163,21 +165,12 @@ For best balance of price and quality: "The Organization of Information" is slig
 
 
 
-    # Parse response
+    # Parsing the response
     print("the bedrock response is " , bedrock_response)
     result = json.loads(bedrock_response['body'].read().decode('utf-8'))
     insights = result["output_text"] if "output_text" in result else result 
 
-    
-
-    #############################
-    ### For Summary #############
-    #############################
-
-
-
-
-    
+       
 
 
     summary = extract_summary(insights)
@@ -185,7 +178,7 @@ For best balance of price and quality: "The Organization of Information" is slig
     input_token = usage["input_tokens"]
     output_token = usage["output_tokens"]
 
-    # Save response back to S3
+    # Save response back to S3 later remove that.
     output_key = "processed/bedrock_response.json"
     s3_client.put_object(
         Bucket=bucket_name,
