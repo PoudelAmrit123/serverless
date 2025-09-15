@@ -76,7 +76,7 @@ def lambda_handler(event, context):
     # """
 
 
-    user_request= "Show me all books with price > 20 and rating < 4.0"
+    user_request= "Show me all books with price >= 20 and rating < 4.0"
 
 
 
