@@ -125,39 +125,27 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         ],
         Resource = "*"
       },
-      # Additional permissions (Lambda, DynamoDB, SES, Events)
-      # {
-      #   Effect = "Allow",
-      #   Action = [
-      #     "lambda:*",
-      #     "dynamodb:*",
-      #     "ses:*",
-      #     "events:*",
-      #     "codeconnections:*",
-      #     "iam:*"
-      #   ],
-      #   Resource = "*"
-      # } ,
-
-            # Additional permissions (Lambda, DynamoDB, SES, Events)
+     
+            # TODO: Chnage the  dynamoDB to its own table arn
       {
         Effect = "Allow",
         Action = [
           "lambda:*",
           "dynamodb:*",
           
-          # "iam:*"
+       
         ],
         Resource = "*"
       } ,
 
-
+  #TODO: change the code connection  , ses , events to minimal like otheres 
 
       {
         Effect = "Allow",
         Action = [
         
-          "codeconnections:*",
+           "codeconnections:GetConnection",
+  # "codeconnections:ListConnections"
           
         ],
         Resource = aws_codestarconnections_connection.github.arn
@@ -168,7 +156,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Effect = "Allow",
         Action = [
         
-          "ses:*",
+         "ses:SendEmail",
+  "ses:SendRawEmail"
           
         ],
         Resource = [
