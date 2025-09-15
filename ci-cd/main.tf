@@ -111,7 +111,9 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "codebuild:BatchGetProjects",
           "codebuild:StartBuild"
         ],
-        Resource = "*"
+        Resource = [
+           aws_codebuild_project.codebuild_project.arn
+        ] 
       },
       # Logging
       {
@@ -154,7 +156,12 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "cloudwatch:GetMetricData",
   
   ]
-  Resource = "*"
+  Resource = [
+    var.sns_topic_arn ,
+    var.cloudwatch_lambda_error_alarm_arn ,
+    var.cloudwatch_lambda_memory_alarm_arn ,
+    var.cloudwatch_s3_bucket_size_alarm_arn
+  ]
 }
     ]
   })

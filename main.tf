@@ -36,7 +36,12 @@ module "ses" {
 module "cicd" {
   source = "./ci-cd" 
   backend_bucket_arn =   module.s3.backend_bucket_arn
-  s3_main_bucket_arn = module.s3.bucket_arn  
+  s3_main_bucket_arn = module.s3.bucket_arn   
+  cloudwatch_lambda_error_alarm_arn =  module.cloudwatch.cloudwatch_lambda_error_alarm_arn
+  cloudwatch_lambda_memory_alarm_arn = module.cloudwatch.cloudwatch_lambda_memory_alarm_arn 
+  cloudwatch_s3_bucket_size_alarm_arn = module.cloudwatch.cloudwatch_s3_bucket_size_alarm_arn 
+  sns_topic_arn = module.cloudwatch.sns_topic_arn
+
 }
 
 module "cloudwatch" {

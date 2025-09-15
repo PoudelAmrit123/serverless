@@ -9,3 +9,23 @@ variable "s3_main_bucket_arn" {
     type = string
   
 }
+
+variable "sns_topic_arn" {
+    type = string
+  
+}
+
+variable "cloudwatch_lambda_error_alarm_arn" {
+    type = string
+  
+}
+
+variable "cloudwatch_lambda_memory_alarm_arn" {
+    type = string
+  
+}
+
+variable "cloudwatch_s3_bucket_size_alarm_arn" {
+    type = string
+  
+}
