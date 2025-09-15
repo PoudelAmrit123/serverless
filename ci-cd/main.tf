@@ -145,6 +145,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Action = [
         
            "codeconnections:GetConnection",
+           "codeconnections:ListTagsForResource"
   # "codeconnections:ListConnections"
           
         ],
@@ -159,7 +160,9 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "iam:GetPolicy",
     "iam:ListRolePolicies",
     "iam:GetRolePolicy",
-    "iam:ListAttachedRolePolicies"
+    "iam:ListAttachedRolePolicies",
+    "iam:GetPolicyVersion",
+      "iam:CreatePolicyVersion",
           
        
         ],
@@ -172,7 +175,8 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "ses:SendEmail",
           "ses:SendRawEmail" , 
           "ses:VerifyEmailIdentity",
-          "ses:GetIdentityVerificationAttributes"
+          "ses:GetIdentityVerificationAttributes",
+        
           
         ],
         Resource = [
