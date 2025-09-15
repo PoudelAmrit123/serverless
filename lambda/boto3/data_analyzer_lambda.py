@@ -58,7 +58,7 @@ def lambda_handler(event, context):
             # "additionalProperties": r.get("additionalProperties"),
             "name": r.get("name")
         }
-        for r in data[:10]  
+        for r in data[:50]  
     ]
 
     # Clear, grounded prompt
@@ -126,6 +126,8 @@ For newcomers to anthropology: start with "Laboratory Manual and Workbook for Bi
 For advanced learners or professionals in information science: "The Organization of Information" offers deeper theoretical grounding.  
 For best balance of price and quality: "The Organization of Information" is slightly cheaper but nearly equal in quality.  
 
+If no matches are found, respond: "i'm sorry, but i can't provide specific details" 
+
 
 
 2. **Direct Query Mode**  
@@ -140,6 +142,8 @@ For best balance of price and quality: "The Organization of Information" is slig
    Books matching your request:  
    - Title: "Book A", Price: 55.0, Rating: 4.0  
    - Title: "Book B", Price: 62.5, Rating: 3.8 
+
+   If no matches are found, respond: "i'm sorry, but i can't provide specific details" 
 
    
 """
