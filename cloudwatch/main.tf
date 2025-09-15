@@ -8,6 +8,8 @@ resource "aws_sns_topic_subscription" "lambda_alerts_email" {
   endpoint  = "amritpoudel433@gmail.com"
 }
 
+
+##Lambda Error  
 resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   for_each = toset(var.lambda_names)
 
@@ -29,6 +31,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   alarm_actions = [aws_sns_topic.lambda_alerts.arn]
 }
 
+##Lambda Memory
 resource "aws_cloudwatch_metric_alarm" "lambda_memory_alarm" {
   for_each = toset(var.lambda_names)
 
