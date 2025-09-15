@@ -50,7 +50,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[0].number')
+          PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[].number')
           if [ -z "$PR_NUMBER" ]; then
             PR_URL=$(gh pr create --base dev --head uat-sync --title "Gitback Sync: uat -> dev" --body "Automated PR to sync changes from uat to dev.")
             echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
@@ -77,3 +77,11 @@ jobs:
             echo "PR #$PR_NUMBER has conflicts. Manual merge required."
             echo "branch_deleted=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Delete uat-sync branch
+        if: steps.merge-pr.outputs.merged == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push origin --delete uat-sync || true
+          echo "Deleted uat-sync branch after successful merge."
