@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing Terraform..."
+      - yum install -y wget unzip || true
+      - wget https://releases.hashicorp.com/terraform/1.13.2/terraform_1.13.2_linux_amd64.zip
+      - unzip terraform_1.13.2_linux_amd64.zip -d /usr/local/bin/
+      - terraform -version
+
+  build:
+    commands:
+      - echo "Running Terraform plan..."
+      - terraform init -input=false
+      - terraform plan
+
+  post_build:
+    commands:
+      - echo "Applying Terraform..."
+      - terraform apply -auto-approve -input=false
+      - echo "Deployment completed on `date`"

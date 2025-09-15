@@ -112,7 +112,9 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           "codebuild:StartBuild"
         ],
         Resource = [
-           aws_codebuild_project.codebuild_project.arn
+          #  aws_codebuild_project.codebuild_project.arn
+            aws_codebuild_project.ci_project.arn,
+          aws_codebuild_project.cd_project.arn
         ] 
       },
       # Logging
@@ -269,24 +271,74 @@ resource "aws_iam_role_policy_attachment" "codebuild_iam_role_policy_attachment"
 
 }
 
+### Code build CI
 
-resource "aws_codebuild_project" "codebuild_project" {
-  name          = "amrit-codebuild"
+resource "aws_codebuild_project" "ci_project" {
+  name          = "amrit-ci-project"
+  # description   = "CI project: runs tests and Terraform validation"
   service_role  = aws_iam_role.codebuild_iam_role.arn
+
   artifacts {
     type = "CODEPIPELINE"
   }
+
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
     image                       = "aws/codebuild/standard:7.0"
     type                        = "LINUX_CONTAINER"
     privileged_mode             = false
   }
+
   source {
     type      = "CODEPIPELINE"
-    buildspec = "buildspec.yml"  
+    buildspec = "buildspec-ci.yml"
   }
 }
+
+
+### Code Build CD
+
+resource "aws_codebuild_project" "cd_project" {
+  name          = "amrit-cd-project"
+  # description   = "CD project: runs Terraform plan and apply"
+  service_role  = aws_iam_role.codebuild_iam_role.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:7.0"
+    type                        = "LINUX_CONTAINER"
+    privileged_mode             = false
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec-cd.yml"
+  }
+}
+
+### Code Build Original
+
+# resource "aws_codebuild_project" "codebuild_project" {
+#   name          = "amrit-codebuild"
+#   service_role  = aws_iam_role.codebuild_iam_role.arn
+#   artifacts {
+#     type = "CODEPIPELINE"
+#   }
+#   environment {
+#     compute_type                = "BUILD_GENERAL1_SMALL"
+#     image                       = "aws/codebuild/standard:7.0"
+#     type                        = "LINUX_CONTAINER"
+#     privileged_mode             = false
+#   }
+#   source {
+#     type      = "CODEPIPELINE"
+#     buildspec = "buildspec.yml"  
+#   }
+# }
 
 
 #### Code Pipeline 
@@ -355,7 +407,10 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "codebuild:StartBuild"
         ],
         Resource = [
-          aws_codebuild_project.codebuild_project.arn
+          # aws_codebuild_project.codebuild_project.arn,
+          aws_codebuild_project.ci_project.arn,
+          aws_codebuild_project.cd_project.arn
+
         ]
       },
       # Allow use of CodeStar connection (GitHub)
@@ -388,6 +443,7 @@ resource "aws_iam_role_policy_attachment" "codepipeline_role_policy_attachment" 
 
 
 
+
 resource "aws_codepipeline" "codepipeline_project" {
     name =   "amrit-codepipeline"
     artifact_store {
@@ -415,21 +471,55 @@ resource "aws_codepipeline" "codepipeline_project" {
       }
     }
 
-        stage {
-      name = "Build"
-      action {
-        name = "Build"
-        category = "Build"
-            configuration = {
-               ProjectName = aws_codebuild_project.codebuild_project.name
-      }
-        owner = "AWS"
-        version = 1
-        provider = "CodeBuild"
-        input_artifacts  = ["source_output"]   
-        output_artifacts = [ "build_output" ]
+
+      stage {
+    name = "CI"
+    action {
+      name = "CI_Build"
+      category = "Build"
+      owner = "AWS"
+      provider = "CodeBuild"
+      version = 1
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["ci_output"]
+      configuration = {
+        ProjectName = aws_codebuild_project.ci_project.name
       }
     }
+  }
+
+
+   stage {
+    name = "CD"
+    action {
+      name = "CD_Deploy"
+      category = "Build"
+      owner = "AWS"
+      provider = "CodeBuild"
+      version = 1
+      input_artifacts = ["ci_output"]  
+       output_artifacts = [ "build_output" ]
+      configuration = {
+        ProjectName = aws_codebuild_project.cd_project.name
+      }
+    }
+  }
+
+    #     stage {
+    #   name = "Build"
+    #   action {
+    #     name = "Build"
+    #     category = "Build"
+    #         configuration = {
+    #            ProjectName = aws_codebuild_project.codebuild_project.name
+    #   }
+    #     owner = "AWS"
+    #     version = 1
+    #     provider = "CodeBuild"
+    #     input_artifacts  = ["build_output"]   
+    #     output_artifacts = [ "final_output" ]
+    #   }
+    # }
 
   
 }

@@ -2,8 +2,6 @@ version: 0.2
 
 phases:
   install:
-    # runtime-versions:
-    #   python: 3.12
     commands:
       - echo "Installing OS dependencies..."
       - yum install -y make zip unzip wget || true
@@ -19,7 +17,6 @@ phases:
     commands: 
       - echo "Running Python unit tests..."
       - pytest tests/ --junitxml=test-results/results.xml
-
   build:
     commands:
       - echo "Running Terraform validation..."
@@ -27,14 +24,6 @@ phases:
       - terraform fmt -recursive
       - terraform fmt -check
       - terraform validate
-
-  post_build:
-    commands:
-      - echo "Deploying with Terraform..."
-      - terraform plan
-      - terraform apply -auto-approve -input=false
-      - echo "Build and deployment completed on `date`"
-      - python3 --version
 
 artifacts:
   files:
