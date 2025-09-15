@@ -15,17 +15,36 @@ variable "sns_topic_arn" {
   
 }
 
-variable "cloudwatch_lambda_error_alarm_arn" {
+# variable "cloudwatch_lambda_error_alarm_arn" {
+#     type = string
+  
+# }
+
+# variable "cloudwatch_lambda_memory_alarm_arn" {
+#     type = string
+  
+# }
+
+# variable "cloudwatch_s3_bucket_size_alarm_arn" {
+#     type = string
+  
+# }
+
+variable "ses_email_primary" {
+    type = string
+  
+}
+variable "ses_email_secondary" {
     type = string
   
 }
 
-variable "cloudwatch_lambda_memory_alarm_arn" {
+variable "s3_processed_rule" {
     type = string
   
 }
 
-variable "cloudwatch_s3_bucket_size_alarm_arn" {
+variable "notifier_rule" {
     type = string
   
 }

@@ -126,18 +126,74 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Resource = "*"
       },
       # Additional permissions (Lambda, DynamoDB, SES, Events)
+      # {
+      #   Effect = "Allow",
+      #   Action = [
+      #     "lambda:*",
+      #     "dynamodb:*",
+      #     "ses:*",
+      #     "events:*",
+      #     "codeconnections:*",
+      #     "iam:*"
+      #   ],
+      #   Resource = "*"
+      # } ,
+
+            # Additional permissions (Lambda, DynamoDB, SES, Events)
       {
         Effect = "Allow",
         Action = [
           "lambda:*",
           "dynamodb:*",
-          "ses:*",
-          "events:*",
-          "codeconnections:*",
-          "iam:*"
+          
+          # "iam:*"
         ],
         Resource = "*"
       } ,
+
+
+
+      {
+        Effect = "Allow",
+        Action = [
+        
+          "codeconnections:*",
+          
+        ],
+        Resource = aws_codestarconnections_connection.github.arn
+
+
+      }, 
+         {
+        Effect = "Allow",
+        Action = [
+        
+          "ses:*",
+          
+        ],
+        Resource = [
+          var.ses_email_primary ,
+          var.ses_email_secondary
+        ]
+
+
+      }, 
+               {
+        Effect = "Allow",
+        Action = [
+        
+          "events:*",
+          
+        ],
+        Resource = [
+           var.notifier_rule,
+           var.s3_processed_rule
+        ]
+
+
+      }, 
+
+
       {
   Effect = "Allow"
   Action = [
@@ -147,8 +203,22 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "sns:ListTopics" ,
       "sns:GetTopicAttributes",
       "sns:GetSubscriptionAttributes",
-      "cloudwatch:ListTagsForResource",
         "sns:ListTagsForResource",
+    
+   
+  
+  ]
+  Resource = [
+    var.sns_topic_arn ,
+  
+  ]
+} ,
+      {
+  Effect = "Allow"
+  Action = [
+    
+      "cloudwatch:ListTagsForResource",
+        
            "cloudwatch:PutMetricAlarm",
     "cloudwatch:DescribeAlarms",
     "cloudwatch:DeleteAlarms",
@@ -156,12 +226,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
     "cloudwatch:GetMetricData",
   
   ]
-  Resource = [
-    var.sns_topic_arn ,
-    var.cloudwatch_lambda_error_alarm_arn ,
-    var.cloudwatch_lambda_memory_alarm_arn ,
-    var.cloudwatch_s3_bucket_size_alarm_arn
-  ]
+  Resource = "*"
 }
     ]
   })
