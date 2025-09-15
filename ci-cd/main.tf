@@ -168,24 +168,44 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         ],
         Resource = "*"
       } ,
-         {
-        Effect = "Allow",
-        Action = [
+      #    {
+      #   Effect = "Allow",
+      #   Action = [
         
-          "ses:SendEmail",
-          "ses:SendRawEmail" , 
-          "ses:VerifyEmailIdentity",
-          "ses:GetIdentityVerificationAttributes",
+      #     "ses:SendEmail",
+      #     "ses:SendRawEmail" , 
+      #     "ses:VerifyEmailIdentity",
+      #     "ses:GetIdentityVerificationAttributes",
         
           
-        ],
-        Resource = [
-          var.ses_email_primary ,
-          var.ses_email_secondary
-        ]
+      #   ],
+      #   Resource = [
+      #     var.ses_email_primary ,
+      #     var.ses_email_secondary
+      #   ]
 
 
-      }, 
+      # }, 
+      {
+            Effect = "Allow",
+            Action = [
+              "ses:SendEmail",
+              "ses:SendRawEmail"
+            ],
+            Resource = [
+              var.ses_email_primary,
+              var.ses_email_secondary
+            ]
+          },
+          {
+            Effect = "Allow",
+            Action = [
+              "ses:VerifyEmailIdentity",
+              "ses:GetIdentityVerificationAttributes",
+              "ses:ListIdentities"
+            ],
+            Resource = "*"
+          },
                {
         Effect = "Allow",
         Action = [
