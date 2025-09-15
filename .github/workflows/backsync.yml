@@ -68,8 +68,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
  
-          URL='https://github.com/PoudelAmrit123/serverless/pull/1'
-          PR_NUMBER=$(gh pr view "$URL" --json number --jq '.number') 
+          PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
 
           MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
           if [ "$MERGEABLE" = "true" ]; then
