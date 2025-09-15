@@ -79,3 +79,4 @@ jobs:
           else
             echo "PR #$PR_NUMBER has conflicts. Manual merge required."
             echo "branch_deleted=false" >> $GITHUB_OUTPUT
+          fi
