@@ -1,4 +1,4 @@
-name: gitback sync
+name: Gitback Sync UAT -> Dev
 
 on:
   push:
@@ -13,22 +13,20 @@ jobs:
       pull-requests: write
 
     steps:
- 
+      # Step 1: Checkout the repository
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-
-  
-      - name: Setup Git
+      # Step 2: Configure Git
+      - name: Set up Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-
-      - name: Prepare sync branch
-        id: prepare-sync
+      # Step 3: Create or update persistent sync branch
+      - name: Prepare uat-sync branch
         run: |
           git fetch origin dev
           git fetch origin uat
@@ -37,32 +35,30 @@ jobs:
           else
             git checkout -b uat-sync origin/dev
           fi
-          git merge origin/uat --no-ff -m "Sync changes from uat to dev"
+          git merge origin/uat --no-ff -m "Sync hotfix from uat to dev"
 
-    
-      - name: Push sync branch
+      # Step 4: Push uat-sync branch
+      - name: Push uat-sync branch
         run: |
           git push origin uat-sync || (git pull --rebase origin uat-sync && git push origin uat-sync)
 
-    
-      - name: Create Pull Request
+      # Step 5: Create PR using GitHub CLI
+      - name: Create PR to dev
         id: create-pr
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[].number')
-          if [ -z "$PR_NUMBER" ]; then
+          PR_EXISTS=$(gh pr list --base dev --head uat-sync --json number --jq '.[].number')
+          if [ -z "$PR_EXISTS" ]; then
             PR_URL=$(gh pr create --base dev --head uat-sync --title "Gitback Sync: uat -> dev" --body "Automated PR to sync changes from uat to dev.")
             echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-            echo "PR created successfully: $PR_URL"
           else
-            echo "pr_url=https://github.com/${{ github.repository }}/pull/$PR_NUMBER" >> $GITHUB_OUTPUT
-            echo "PR already exists: #$PR_NUMBER"
+            echo "pr_url=https://github.com/${{ github.repository }}/pull/$PR_EXISTS" >> $GITHUB_OUTPUT
+            echo "PR already exists: #$PR_EXISTS"
           fi
 
- 
-      - name: Auto-merge Pull Request
-        id: auto-merge
+      # Step 6: Auto-merge if no conflicts
+      - name: Auto-merge PR
         if: steps.create-pr.outputs.pr_url != ''
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -70,14 +66,15 @@ jobs:
           PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
           MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
           if [ "$MERGEABLE" = "true" ]; then
+            echo "PR #$PR_NUMBER is mergeable. Merging..."
             gh pr merge $PR_NUMBER --squash --delete-branch
-            echo "PR #$PR_NUMBER merged successfully."
-            echo "branch_deleted=true" >> $GITHUB_OUTPUT
+            echo "merged=true" >> $GITHUB_OUTPUT
           else
             echo "PR #$PR_NUMBER has conflicts. Manual merge required."
-            echo "branch_deleted=false" >> $GITHUB_OUTPUT
+            echo "merged=false" >> $GITHUB_OUTPUT
           fi
 
+      # Step 7: Delete uat-sync branch if merged
       - name: Delete uat-sync branch
         if: steps.merge-pr.outputs.merged == 'true'
         env:
@@ -85,3 +82,104 @@ jobs:
         run: |
           git push origin --delete uat-sync || true
           echo "Deleted uat-sync branch after successful merge."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: gitback sync
+
+# on:
+#   push:
+#     branches:
+#       - uat
+
+# jobs:
+#   gitback-sync:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#       pull-requests: write
+
+#     steps:
+ 
+#       - name: Checkout repo
+#         uses: actions/checkout@v5
+#         with:
+#           fetch-depth: 0
+
+
+  
+#       - name: Setup Git
+#         run: |
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+
+#       - name: Prepare sync branch
+#         id: prepare-sync
+#         run: |
+#           git fetch origin dev
+#           git fetch origin uat
+#           if git show-ref --verify --quiet refs/heads/uat-sync; then
+#             git checkout uat-sync
+#           else
+#             git checkout -b uat-sync origin/dev
+#           fi
+#           git merge origin/uat --no-ff -m "Sync changes from uat to dev"
+
+    
+#       - name: Push sync branch
+#         run: |
+#           git push origin uat-sync || (git pull --rebase origin uat-sync && git push origin uat-sync)
+
+    
+#       - name: Create Pull Request
+#         id: create-pr
+#         env:
+#           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+#         run: |
+#           PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[].number')
+#           if [ -z "$PR_NUMBER" ]; then
+#             PR_URL=$(gh pr create --base dev --head uat-sync --title "Gitback Sync: uat -> dev" --body "Automated PR to sync changes from uat to dev.")
+#             echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+#             echo "PR created successfully: $PR_URL"
+#           else
+#             echo "pr_url=https://github.com/${{ github.repository }}/pull/$PR_NUMBER" >> $GITHUB_OUTPUT
+#             echo "PR already exists: #$PR_NUMBER"
+#           fi
+
+ 
+#       - name: Auto-merge Pull Request
+#         id: auto-merge
+#         if: steps.create-pr.outputs.pr_url != ''
+#         env:
+#           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+#         run: |
+#           PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
+#           MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
+#           if [ "$MERGEABLE" = "true" ]; then
+#             gh pr merge $PR_NUMBER --squash --delete-branch
+#             echo "PR #$PR_NUMBER merged successfully."
+#             echo "branch_deleted=true" >> $GITHUB_OUTPUT
+#           else
+#             echo "PR #$PR_NUMBER has conflicts. Manual merge required."
+#             echo "branch_deleted=false" >> $GITHUB_OUTPUT
+#           fi
+
+#       - name: Delete uat-sync branch
+#         if: steps.merge-pr.outputs.merged == 'true'
+#         env:
+#           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+#         run: |
+#           git push origin --delete uat-sync || true
+#           echo "Deleted uat-sync branch after successful merge."
