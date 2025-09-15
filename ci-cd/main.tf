@@ -296,6 +296,8 @@ resource "aws_codebuild_project" "ci_project" {
 }
 
 
+
+
 ### Code Build CD
 
 resource "aws_codebuild_project" "cd_project" {
