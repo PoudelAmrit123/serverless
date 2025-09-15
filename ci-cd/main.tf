@@ -166,7 +166,9 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
           
        
         ],
-        Resource = "*"
+        Resource = [
+           aws_iam_role.codebuild_iam_role.arn 
+           ]
       } ,
       #    {
       #   Effect = "Allow",
@@ -194,7 +196,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
             ],
             Resource = [
               var.ses_email_primary,
-              
+
               var.ses_email_secondary
             ]
           },
