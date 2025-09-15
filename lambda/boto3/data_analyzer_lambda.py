@@ -164,6 +164,7 @@ For best balance of price and quality: "The Organization of Information" is slig
 
 
     # Parse response
+    print("the bedrock response is " , bedrock_response)
     result = json.loads(bedrock_response['body'].read().decode('utf-8'))
     insights = result["output_text"] if "output_text" in result else result 
 
