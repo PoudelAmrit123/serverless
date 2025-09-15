@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 name: gitback sync
 
 on:
@@ -18,6 +26,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
 
   
       - name: Setup Git
@@ -49,7 +58,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[0].number')
+          PR_NUMBER=$(gh pr list --base dev --head uat-sync --json number --jq '.[].number')
           if [ -z "$PR_NUMBER" ]; then
             PR_URL=$(gh pr create --base dev --head uat-sync --title "Gitback Sync: uat -> dev" --body "Automated PR to sync changes from uat to dev.")
             echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
@@ -58,6 +67,34 @@ jobs:
             echo "pr_url=https://github.com/${{ github.repository }}/pull/$PR_NUMBER" >> $GITHUB_OUTPUT
             echo "PR already exists: #$PR_NUMBER"
           fi
+
+
+      - name: Auto-merge PR
+        if: steps.create-pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
+
+          # Retry up to 5 times with 10s wait to let GitHub compute mergeability
+          for i in {1..5}; do
+            MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
+            echo "Attempt $i: Mergeable = $MERGEABLE"
+            if [ "$MERGEABLE" = "true" ]; then
+              echo "PR #$PR_NUMBER is mergeable. Merging..."
+              gh pr merge $PR_NUMBER --squash --delete-branch
+              echo "merged=true" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$MERGEABLE" = "false" ]; then
+              echo "PR #$PR_NUMBER has conflicts. Manual merge required."
+              echo "merged=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "Mergeability could not be determined after retries."
+          echo "merged=false" >> $GITHUB_OUTPUT
 
  
       - name: Auto-merge Pull Request
@@ -68,10 +105,19 @@ jobs:
         run: |
           PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
           MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
-          if [ "$MERGEABLE" = "true" ]; then
+          if [ "$MERGEABLE" = "MERGEABLE" ]; then
             gh pr merge $PR_NUMBER --squash --delete-branch
             echo "PR #$PR_NUMBER merged successfully."
             echo "branch_deleted=true" >> $GITHUB_OUTPUT
           else
             echo "PR #$PR_NUMBER has conflicts. Manual merge required."
             echo "branch_deleted=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Delete uat-sync branch
+        if: steps.merge-pr.outputs.merged == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push origin --delete uat-sync || true
+          echo "Deleted uat-sync branch after successful merge."
