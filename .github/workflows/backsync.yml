@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          
+
 
   
       - name: Setup Git
@@ -67,7 +67,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
+          PR_NUMBER=$(gh pr view 'https://github.com/PoudelAmrit123/serverless/pull/1' --json number --jq '.number')
+
           MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
           if [ "$MERGEABLE" = "true" ]; then
             gh pr merge $PR_NUMBER --squash --delete-branch
