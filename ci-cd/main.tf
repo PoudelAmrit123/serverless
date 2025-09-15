@@ -155,9 +155,24 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
          {
         Effect = "Allow",
         Action = [
+         "iam:GetRole",
+    "iam:GetPolicy",
+    "iam:ListRolePolicies",
+    "iam:GetRolePolicy",
+    "iam:ListAttachedRolePolicies"
+          
+       
+        ],
+        Resource = "*"
+      } ,
+         {
+        Effect = "Allow",
+        Action = [
         
-         "ses:SendEmail",
-  "ses:SendRawEmail"
+          "ses:SendEmail",
+          "ses:SendRawEmail" , 
+          "ses:VerifyEmailIdentity",
+          "ses:GetIdentityVerificationAttributes"
           
         ],
         Resource = [
