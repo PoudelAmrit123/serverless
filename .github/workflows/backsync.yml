@@ -68,7 +68,7 @@ jobs:
             echo "PR already exists: #$PR_NUMBER"
           fi
 
-          
+
       - name: Auto-merge PR
         if: steps.create-pr.outputs.pr_url != ''
         env:
@@ -97,22 +97,22 @@ jobs:
           echo "merged=false" >> $GITHUB_OUTPUT
 
  
-      # - name: Auto-merge Pull Request
-      #   id: auto-merge
-      #   if: steps.create-pr.outputs.pr_url != ''
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      #   run: |
-      #     PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
-      #     MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
-      #     if [ "$MERGEABLE" = "true" ]; then
-      #       gh pr merge $PR_NUMBER --squash --delete-branch
-      #       echo "PR #$PR_NUMBER merged successfully."
-      #       echo "branch_deleted=true" >> $GITHUB_OUTPUT
-      #     else
-      #       echo "PR #$PR_NUMBER has conflicts. Manual merge required."
-      #       echo "branch_deleted=false" >> $GITHUB_OUTPUT
-      #     fi
+      - name: Auto-merge Pull Request
+        id: auto-merge
+        if: steps.create-pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr view "${{ steps.create-pr.outputs.pr_url }}" --json number --jq '.number')
+          MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
+          if [ "$MERGEABLE" = "MERGEABLE" ]; then
+            gh pr merge $PR_NUMBER --squash --delete-branch
+            echo "PR #$PR_NUMBER merged successfully."
+            echo "branch_deleted=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR #$PR_NUMBER has conflicts. Manual merge required."
+            echo "branch_deleted=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Delete uat-sync branch
         if: steps.merge-pr.outputs.merged == 'true'
