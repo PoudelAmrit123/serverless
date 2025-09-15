@@ -132,7 +132,7 @@ For best balance of price and quality: "The Organization of Information" is slig
 
    If no matches are found, respond: "i'm sorry, but i can't provide specific details" 
 
-   The user request is {user}
+   The user request is {user_request}
 
    Example:  
    Books matching your request:  
