@@ -194,6 +194,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
             ],
             Resource = [
               var.ses_email_primary,
+              
               var.ses_email_secondary
             ]
           },
