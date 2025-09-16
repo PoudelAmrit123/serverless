@@ -169,4 +169,27 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
 }
 
 
-### IAM Role Later Move it to Seperate Module 
+### S3 Bucket Lifecycle Policy
+
+resource "aws_s3_bucket_lifecycle_configuration" "example" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  rule {
+    id     = "S3Bucket"
+    status = "Enabled"
+
+    
+    transition {
+      days          = 30
+      storage_class = "GLACIER" 
+    }
+
+    transition {
+      days          = 180
+      storage_class = "DEEP_ARCHIVE"
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+}
