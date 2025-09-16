@@ -169,6 +169,10 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
 }
 
 
+
+
+
+
 ### S3 Bucket Lifecycle Policy
 
 resource "aws_s3_bucket_lifecycle_configuration" "s3_bucket_lifecycle" {
