@@ -11,6 +11,8 @@ s3_client = boto3.client("s3")
 
 ## Targeting the History Category as the dataset is large.
 ## Can Target another topic also..
+
+
 TARGET_SUB_CATEGORY = "History" 
 
 ## Dropping the Column that seems unnecesary in this context.
