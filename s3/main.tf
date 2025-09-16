@@ -177,6 +177,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "example" {
     id     = "S3Bucket"
     status = "Enabled"
 
+
+
+    filter {
+      prefix = "" 
+    }
+
+
     
     transition {
       days          = 30
