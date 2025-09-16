@@ -169,9 +169,13 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
 }
 
 
+
+
+
+
 ### S3 Bucket Lifecycle Policy
 
-resource "aws_s3_bucket_lifecycle_configuration" "example" {
+resource "aws_s3_bucket_lifecycle_configuration" "s3_bucket_lifecycle" {
   bucket = aws_s3_bucket.s3_bucket.id
   rule {
     id     = "S3Bucket"
@@ -179,11 +183,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "example" {
 
 
 
-
     filter {
       prefix = "" 
     }
-
 
 
     
