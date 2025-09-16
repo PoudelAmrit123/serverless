@@ -216,11 +216,13 @@ resource "aws_lambda_permission" "s3_data_ingestor" {
   
 }
 
+
 resource "aws_s3_bucket_notification" "upload_trigger" {
-bucket =  var.aws_s3_bucket_name 
+
+    bucket =  var.aws_s3_bucket_name 
 
 
-lambda_function {
+    lambda_function {
        lambda_function_arn = aws_lambda_function.data_ingestor_function.arn
        filter_prefix = "input/"
        events = [ "s3:ObjectCreated:*" ]  
