@@ -98,7 +98,7 @@ def get_last_processed_etag(bucket, processed_key):
         return None
 
 
-#  output writing to the 
+#  output writing to the s3 bucket
 def write_outputs(selected_rows, rejected_rows, bucket, correlation_id, source_etag , total_rows , valid_count , invalid_count):
     outputs = {
         "processed/selected_data.json": json.dumps(selected_rows, ensure_ascii=False, indent=2),
@@ -128,7 +128,7 @@ def write_outputs(selected_rows, rejected_rows, bucket, correlation_id, source_e
 ## main function 
 def lambda_handler(event, context):
     correlation_id = str(uuid.uuid4())
-    log_json("Lambda started", correlation_id, event=event)
+    log_json(logging.INFO ,   logging.INFO , "Lambda started", correlation_id, event=event)
 
     record = event["Records"][0]
     bucket = record["s3"]["bucket"]["name"]
@@ -169,7 +169,7 @@ def lambda_handler(event, context):
     valid_count = len(selected_rows)
     invalid_count = len(rejected_rows)
 
-    log_json("Validation complete", correlation_id,
+    log_json(logging.INFO ,  logging.INFO , "Validation complete", correlation_id,
              selected=len(selected_rows), rejected=len(rejected_rows))
 
     # 6. Save results

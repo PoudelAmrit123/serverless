@@ -3,7 +3,7 @@
         
         resource "aws_cloudwatch_event_rule" "s3_processed_rule" {
         name        = "s3_processed_data_rule"
-        description = "Trigger Bedrock Lambda when processed data is uploaded"
+        description = "trigger Bedrock Lambda when processed data is uploaded"
         event_pattern = jsonencode({
             "source": ["aws.s3"],
             "detail-type": ["Object Created"],
@@ -38,7 +38,7 @@
 
         resource "aws_cloudwatch_event_rule" "notifier_rule" {
         name        = "bedrock_completed_rule"
-        description = "Trigger Notifier Lambda when Bedrock Lambda completes"
+        description = "trigger Notifier Lambda when Bedrock Lambda completes"
         event_pattern = jsonencode({
             "source": ["my.data.analyzer"],
             "detail-type": ["DataAnalysisCompleted"]

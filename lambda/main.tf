@@ -10,7 +10,7 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   compatible_architectures = ["x86_64"]
 }
 
-                 ## Data Ingestor Function
+ ## Data Ingestor Function
 
 data "archive_file" "data_ingestor_archive" {
   type        = "zip"
@@ -25,25 +25,23 @@ resource "aws_lambda_function" "data_ingestor_function" {
   filename         = data.archive_file.data_ingestor_archive.output_path
   source_code_hash = data.archive_file.data_ingestor_archive.output_base64sha256
   function_name = "data_ingestor_function"
-  role          = aws_iam_role.lambda_iam_role.arn
+  role          = aws_iam_role.data_ingestor_role.arn
   handler = "data_ingestor_lambda.lambda_handler"
 
   runtime       = "python3.12"
 
-   memory_size = 1024     # Increase memory (try 1024 MB or 2048 MB)
-  timeout     = 900      # Max = 900 seconds (15 minutes)
+   memory_size = 1024     
+  timeout     = 900     
 
   layers = [aws_lambda_layer_version.lambda_layer.arn]
 
-#   tracing_config {
-#     mode = "Active" # Enable X-Ray tracing
-#   }
-}
+
+   }
 
 
 ####################################################
 
-#                  ## Data Analyzer Function 
+ ## Data Analyzer Function 
 
 data "archive_file" "data_analyzer_archive" {
   type        = "zip"
@@ -57,21 +55,17 @@ resource "aws_lambda_function" "data_analyzer_function" {
    filename         = data.archive_file.data_analyzer_archive.output_path
   source_code_hash = data.archive_file.data_analyzer_archive.output_base64sha256
   function_name = "data_analyzer_function"
-  role          = aws_iam_role.lambda_iam_role.arn
+  role          = aws_iam_role.data_analyzer_role.arn
   handler       = "data_analyzer_lambda.lambda_handler"
   runtime       = "python3.12"
 
-   memory_size = 1024     # Increase memory (try 1024 MB or 2048 MB)
-  timeout     = 900      # Max = 900 seconds (15 minutes)
+   memory_size = 1024     
+  timeout     = 900     
 
-  # layers = [aws_lambda_layer_version.lambda_layer.arn]
 
-#   tracing_config {
-#     mode = "Active" # Enable X-Ray tracing
-#   }
-}
+   }
 
-#            ## Notifier Function
+## Notifier Function
 
 
 data "archive_file" "notifier_archive" {
@@ -86,26 +80,42 @@ resource "aws_lambda_function" "notifier_function" {
  filename         = data.archive_file.notifier_archive.output_path
   source_code_hash = data.archive_file.notifier_archive.output_base64sha256
   function_name = "notifier_function"
-  role          = aws_iam_role.lambda_iam_role.arn
+  role          = aws_iam_role.notifier_role.arn
   handler       = "notifier_lambda.lambda_handler"
   runtime       = "python3.12"
 
-  # layers = [aws_lambda_layer_version.lambda_layer.arn]
 
-#   tracing_config {
-#     mode = "Active" # Enable X-Ray tracing
-#   }
-}
+  }
 
 ###############################################
 
-
+# TODO: change the lambda function to separate three different 
 ## Lambda Role 
 ## Later Move the different permission per lambda function.
 
 
-resource "aws_iam_role" "lambda_iam_role" {
-    name = "lambda_role"
+# resource "aws_iam_role" "lambda_iam_role" {
+#     name = "lambda_role"
+
+#      assume_role_policy = jsonencode({
+#   Version: "2012-10-17",
+#   Statement: [
+#     {
+#       Effect: "Allow",
+#       Action: "sts:AssumeRole",
+#       Principal = {
+#         Service = "lambda.amazonaws.com"
+#       }
+    
+#     }
+#   ]
+# })  
+# }
+
+
+### Role for the lambda
+resource "aws_iam_role" "data_ingestor_role" {
+    name = "data_ingestor_lambda_role"
 
      assume_role_policy = jsonencode({
   Version: "2012-10-17",
@@ -122,14 +132,77 @@ resource "aws_iam_role" "lambda_iam_role" {
 })  
 }
 
+resource "aws_iam_role" "data_analyzer_role" {
+  name = "data_analyzer_lambda_role"
 
-# TODO: Replace bucket name. 
-resource "aws_iam_policy" "iam_policy" {
-  name = "iam_role_policy_s3"
-  policy = jsonencode({
+  assume_role_policy = jsonencode({
     Version: "2012-10-17",
-    Statement: [
+    Statement: [{
+      Effect = "Allow",
+      Action = "sts:AssumeRole",
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role" "notifier_role" {
+  name = "notifier_lambda_role"
+
+  assume_role_policy = jsonencode({
+    Version: "2012-10-17",
+    Statement: [{
+      Effect = "Allow",
+      Action = "sts:AssumeRole",
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+
+### Data ingestor policy 
+
+resource "aws_iam_policy" "data_ingestor_policy" {
+  name = "data_ingestor_policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+    {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
+        Resource = [
+          "${var.aws_s3_bucket_arn}/*"
+        ]
+      },
       {
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "${var.aws_s3_bucket_arn}"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_data_ingestor" {
+  policy_arn = aws_iam_policy.data_ingestor_policy.arn
+  role       = aws_iam_role.data_ingestor_role.name
+}
+
+
+## data analyzer role policy
+
+resource "aws_iam_policy" "data_analyzer_policy" {
+  name = "data_analyzer_policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+    {
         Effect = "Allow",
         Action = [
           "s3:GetObject",
@@ -148,7 +221,7 @@ resource "aws_iam_policy" "iam_policy" {
           "${var.aws_s3_bucket_arn}"
         ]
       },
-      {
+       {
         Effect = "Allow",
         Action = [
           "bedrock:InvokeModel"
@@ -169,8 +242,40 @@ resource "aws_iam_policy" "iam_policy" {
         Effect = "Allow",
         Action = "events:PutEvents",
         Resource = "*"
-      } ,
+      } 
+    ]
+  })
+}
 
+resource "aws_iam_role_policy_attachment" "attach_data_analyzer" {
+  policy_arn = aws_iam_policy.data_analyzer_policy.arn
+  role       = aws_iam_role.data_analyzer_role.name
+}
+
+
+## Notifer role 
+
+
+resource "aws_iam_policy" "notifier_policy" {
+  name = "notifier_policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+       {
+        Effect = "Allow",
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem"
+        ],
+        Resource = "arn:aws:dynamodb:us-east-1:702865854817:table/BedrockResults"
+      },
+
+      {
+        Effect = "Allow",
+        Action = "events:PutEvents",
+        Resource = "*"
+      } ,
        {
         Effect   = "Allow"
         Action   = [
@@ -184,17 +289,98 @@ resource "aws_iam_policy" "iam_policy" {
   })
 }
 
-
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment" {
-    policy_arn = aws_iam_policy.iam_policy.arn 
-    role = aws_iam_role.lambda_iam_role.name
-  
-
+resource "aws_iam_role_policy_attachment" "attach_notifier_policy" {
+  policy_arn = aws_iam_policy.notifier_policy.arn
+  role       = aws_iam_role.notifier_role.name
 }
 
+
+
+
+
+
+# # TODO: Replace bucket name. 
+# resource "aws_iam_policy" "iam_policy" {
+#   name = "iam_role_policy_s3"
+#   policy = jsonencode({
+#     Version: "2012-10-17",
+#     Statement: [
+#       {
+#         Effect = "Allow",
+#         Action = [
+#           "s3:GetObject",
+#           "s3:PutObject"
+#         ],
+#         Resource = [
+#           "${var.aws_s3_bucket_arn}/*"
+#         ]
+#       },
+#       {
+#         Effect = "Allow",
+#         Action = [
+#           "s3:ListBucket"
+#         ],
+#         Resource = [
+#           "${var.aws_s3_bucket_arn}"
+#         ]
+#       },
+#       {
+#         Effect = "Allow",
+#         Action = [
+#           "bedrock:InvokeModel"
+#         ],
+#         Resource = "*"
+#       } ,
+#       {
+#         Effect = "Allow",
+#         Action = [
+#           "dynamodb:PutItem",
+#           "dynamodb:GetItem",
+#           "dynamodb:UpdateItem"
+#         ],
+#         Resource = "arn:aws:dynamodb:us-east-1:702865854817:table/BedrockResults"
+#       },
+
+#       {
+#         Effect = "Allow",
+#         Action = "events:PutEvents",
+#         Resource = "*"
+#       } ,
+
+#        {
+#         Effect   = "Allow"
+#         Action   = [
+#           "ses:SendEmail",
+#           "ses:SendRawEmail"
+#         ]
+#         # Resource = "arn:aws:ses:us-east-1:${data.aws_caller_identity.current.account_id}:identity/officalamritpoudel433@gmail.com"
+#         Resource = "*"
+#       }
+#     ]
+#   })
+# }
+
+
+# resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment" {
+#     policy_arn = aws_iam_policy.iam_policy.arn 
+#     role = aws_iam_role.lambda_iam_role.name
+  
+
+# }
+
 # Allow Lambda to create log groups/streams & put logs
-resource "aws_iam_role_policy_attachment" "lambda_logging" {
-  role       = aws_iam_role.lambda_iam_role.name
+resource "aws_iam_role_policy_attachment" "lambda_logging_data_analyzer" {
+  role       = aws_iam_role.data_analyzer_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logging_data_ingestor" {
+  role       = aws_iam_role.data_ingestor_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logging_notifier" {
+  role       = aws_iam_role.notifier_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
