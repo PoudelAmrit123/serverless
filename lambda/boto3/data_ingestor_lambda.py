@@ -98,7 +98,7 @@ def get_last_processed_etag(bucket, processed_key):
         return None
 
 
-#  output writing to the 
+#  output writing to the s3 bucket
 def write_outputs(selected_rows, rejected_rows, bucket, correlation_id, source_etag , total_rows , valid_count , invalid_count):
     outputs = {
         "processed/selected_data.json": json.dumps(selected_rows, ensure_ascii=False, indent=2),

@@ -138,7 +138,12 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
         {
             Effect = "Allow"
             Principal = {
-                AWS = "${var.lambda_role_arn}"
+                AWS = [
+                  var.data_ingestor_lambda_arn ,
+                  var.data_analyzer_lambda_arn ,
+                  var.notifier_lambda_arn
+
+                ]
             }
             Action = [
                 "s3:GetObject" ,
