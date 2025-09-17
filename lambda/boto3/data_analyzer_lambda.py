@@ -2,6 +2,7 @@ import json
 import boto3
 import uuid
 from datetime import datetime, timezone
+import logging
 
 s3_client = boto3.client("s3")
 eventbridge = boto3.client("events")
@@ -9,10 +10,34 @@ bedrock = boto3.client("bedrock-runtime")
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("BedrockResults")
 
+
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+
+def log_json(level , message, correlation_id, **kwargs):
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "correlationId": correlation_id,
+        "message": message,
+        "level": level
+        **kwargs
+    }
+    print(json.dumps(log_entry))
+    logger.log(level , json.dumps(log_entry))
+
+
+#   log_json( logging.INFO , "Input file unchanged — skipping", correlation_id, etag=current_etag)
+
+
 def lambda_handler(event, context):
     timestamp = datetime.now(timezone.utc).isoformat()
     correlation_id = str(uuid.uuid4())
     print("Received event:", json.dumps(event))
+    log_json(logging.INFO, "Received event", correlation_id, event=event)
 
     # Handle EventBridge event
     if "detail" in event:
@@ -25,11 +50,13 @@ def lambda_handler(event, context):
         key = event["Records"][0]["s3"]["object"]["key"]
 
     else:
+        log_json(logging.ERROR, "Unsupported event format", correlation_id, event=event)
         raise ValueError("Unsupported event format: no detail or Records found")
 
     # Only process the selected_data.json file that come from data ingestor lambda function
     if not key.endswith("processed/selected_data.json"):
         print(f"Skipping key {key}, not the target file.")
+        log_json(logging.INFO, "Skipping non-target file", correlation_id, key=key)
         return {"status": "skipped", "correlation_id": correlation_id, "key": key}
 
     # Fetch  file from S3
@@ -44,6 +71,9 @@ def lambda_handler(event, context):
     total_rows = valid_count + invalid_count 
     content = response['Body'].read().decode('utf-8')
     data = json.loads(content)
+
+    log_json(logging.INFO, "Fetched file from S3", correlation_id,
+             bucket=bucket_name, key=key, valid_rows=valid_count , invalid_rows=invalid_count)
 
 
 
@@ -151,20 +181,20 @@ If no matches are found, respond: "i'm sorry, but i can't provide specific detai
 
     prompt_with_data = f"{prompt}\n\nDataset:\n{json.dumps(filtered_rows, indent=2)}"
 
-    bedrock_response = bedrock.invoke_model(
-        modelId="amazon.nova-micro-v1:0",
-        contentType="application/json",
-        accept="application/json",
-        body=json.dumps({
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [{"text": prompt_with_data}]
-                }
-            ]
-        })
-    )
-
+    try:
+        bedrock_response = bedrock.invoke_model(
+            modelId="amazon.nova-micro-v1:0",
+            contentType="application/json",
+            accept="application/json",
+            body=json.dumps({
+                "messages": [
+                    {"role": "user", "content": [{"text": prompt_with_data}]}
+                ]
+            })
+        )
+    except Exception as e:
+        log_json(logging.ERROR, "Bedrock invocation failed", correlation_id, error=str(e))
+        raise
 
 
 
@@ -204,6 +234,7 @@ If no matches are found, respond: "i'm sorry, but i can't provide specific detai
             "output_token": output_token
         }
     )
+    log_json(logging.INFO, "Saved result to DynamoDB", correlation_id)
 
     eventbridge.put_events(
     Entries=[{
@@ -218,6 +249,7 @@ If no matches are found, respond: "i'm sorry, but i can't provide specific detai
         "EventBusName": "default"
     }]
 )
+    log_json(logging.INFO, "EventBridge event emitted", correlation_id)
 
     return {
         "status": "success",
@@ -244,6 +276,7 @@ def extract_summary(response_json):
         return "\n".join(texts) if texts else None
     except Exception as e:
         print("Error in extract_summary:", e)
+        
         return None
     
 def extract_usage(response_json):
