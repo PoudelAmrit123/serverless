@@ -3,10 +3,10 @@ import pytest
 from unittest.mock import patch, MagicMock
 import sys, os
 
-# Make sure Python can find the Lambda file
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lambda/boto3"))
 
-from data_ingestor_lambda import lambda_handler  # your Lambda function
+from data_ingestor_lambda import lambda_handler  
 
 def make_event(bucket="test-bucket", key="input.csv"):
     return {
@@ -21,7 +21,7 @@ def make_event(bucket="test-bucket", key="input.csv"):
     }
 
 def safe_call_lambda(event):
-    """Call lambda_handler safely, log exceptions but don't break tests."""
+    
     try:
         return lambda_handler(event, {})
     except Exception as e:
@@ -44,7 +44,7 @@ def test_no_category_match(mock_s3):
     event = make_event()
     mock_s3.head_object.side_effect = [
         {"ETag": '"abcd"'},
-        {"Metadata": {}}  # fixed to avoid KeyError
+        {"Metadata": {}}  # fixed to avoid KeyError that is causing whole test case to break
     ]
     csv_data = "name,salePrice,nodeName\nBook1,10,Science\n"
     mock_s3.get_object.return_value = {"Body": io.BytesIO(csv_data.encode("utf-8"))}
