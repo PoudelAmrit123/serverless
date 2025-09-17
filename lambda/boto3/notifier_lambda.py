@@ -24,7 +24,10 @@ def log_json(level , message, correlation_id, **kwargs):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "correlationId": correlation_id,
         "message": message,
-        "level": level
+
+
+        "level": level ,
+
         **kwargs
     }
     print(json.dumps(log_entry))
@@ -169,7 +172,6 @@ def lambda_handler(event, context):
         log_json(logging.ERROR, "Failed to send SES email", correlation_id, error=str(e))
         raise
 
-    
     return {
         "status": "success",
         "correlation_id": correlation_id,

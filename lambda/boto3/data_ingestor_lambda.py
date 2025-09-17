@@ -40,7 +40,11 @@ def log_json(level , message, correlation_id, **kwargs):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "correlationId": correlation_id,
         "message": message,
-        "level": level
+
+
+        "level": level ,
+
+
         **kwargs
     }
     print(json.dumps(log_entry))
