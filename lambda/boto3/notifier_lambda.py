@@ -2,6 +2,8 @@ import json
 import boto3
 import re
 import html
+from datetime import datetime, timezone
+import logging
 
 ses = boto3.client("ses")
 dynamodb = boto3.resource("dynamodb")
@@ -11,13 +13,33 @@ SOURCE_EMAIL = "amritpoudel433@gmail.com"
 DEST_EMAIL = "officialamritpoudel433@gmail.com"
 TOKEN_THRESHOLD = 50000 ## for testing threshold
 
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+def log_json(level , message, correlation_id, **kwargs):
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "correlationId": correlation_id,
+        "message": message,
+        "level": level
+        **kwargs
+    }
+    print(json.dumps(log_entry))
+    logger.log(level , json.dumps(log_entry))
+
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event))
 
     # Extracting  correlation_id + timestamp
     correlation_id = event.get("detail", {}).get("correlation_id")
     timestamp = event.get("detail", {}).get("timestamp")
+
+    log_json(logging.INFO, "Received event", correlation_id, event=event)
     if not correlation_id:
+        log_json(logging.ERROR, "Missing correlation_id in event", None)
         return {"status": "failed", "reason": "missing correlation_id"}
 
     # Fetch record from DynamoDB 
@@ -27,6 +49,7 @@ def lambda_handler(event, context):
     })
     item = response.get("Item")
     if not item:
+        log_json(logging.WARNING, "DynamoDB item not found", correlation_id)
         return {"status": "failed", "reason": "dynamodb item not found"}
 
     # Extract values
@@ -36,6 +59,10 @@ def lambda_handler(event, context):
     output_tokens = int(item.get("output_token", 0))
     valid_rows    = int(item.get("valid_row", 0))
     invalid_rows  = int(item.get("invalid_row", 0))
+
+    log_json(logging.INFO, "Fetched item from DynamoDB", correlation_id,
+             input_tokens=input_tokens, output_tokens=output_tokens,
+             valid_rows=valid_rows, invalid_rows=invalid_rows)
 
     # deetect anomalies 
     anomalies = []
@@ -128,15 +155,21 @@ def lambda_handler(event, context):
     """
 
     #  sending email
-    ses.send_email(
-        Source=SOURCE_EMAIL,
-        Destination={"ToAddresses": [DEST_EMAIL]},
-        Message={
-            "Subject": {"Data": f"{'⚠️ Anomaly Detected' if anomalies else '✅ Processing Completed'} - Correlation ID {correlation_id}"},
-            "Body": {"Html": {"Data": html_body}}
-        }
-    )
+    try:
+        ses.send_email(
+            Source=SOURCE_EMAIL,
+            Destination={"ToAddresses": [DEST_EMAIL]},
+            Message={
+                "Subject": {"Data": f"{'⚠️ Anomaly Detected' if anomalies else '✅ Processing Completed'} - Correlation ID {correlation_id}"},
+                "Body": {"Html": {"Data": html_body}}
+            }
+        )
+        log_json(logging.INFO, "SES email sent", correlation_id, destination=DEST_EMAIL)
+    except Exception as e:
+        log_json(logging.ERROR, "Failed to send SES email", correlation_id, error=str(e))
+        raise
 
+    
     return {
         "status": "success",
         "correlation_id": correlation_id,
