@@ -74,6 +74,7 @@ resource "aws_iam_policy" "codebuild_iam_policy" {
         Effect = "Allow",
         Action = [
           "s3:GetBucketPolicy",
+          "s3:PutBucketPolicy" ,
           "s3:GetBucketAcl",
           "s3:GetBucketVersioning",
           "s3:GetBucketCors",
