@@ -7,6 +7,8 @@ import json
 import uuid
 from datetime import datetime , timezone
 
+import logging
+
 s3_client = boto3.client("s3")
 
 ## Targeting the History Category as the dataset is large.
@@ -26,15 +28,23 @@ COLUMNS_TO_DROP = {
 REQUIRED_COLS = ['name', 'salePrice', 'rating', 'reviewCount']
 
 
+## logger
+
+logger = logging.getLogger()
+# logging.basicConfig(level=logging.INFO)
+logger.setLevel(logging.INFO)
+
 # logging to send to cloudwatch
-def log_json(message, correlation_id, **kwargs):
+def log_json(level , message, correlation_id, **kwargs):
     log_entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "correlationId": correlation_id,
         "message": message,
+        "level": level
         **kwargs
     }
     print(json.dumps(log_entry))
+    logger.log(level , json.dumps(log_entry))
 
 
 # cleaning the data to more 
@@ -60,7 +70,7 @@ def clean_row(row: dict) -> dict:
     return row
 
 
-# ------------VALIDATION OF DATA -----------
+# validation of the data 
 def validate_data(rows):
     selected_rows, rejected_rows = [], []
 
@@ -107,7 +117,7 @@ def write_outputs(selected_rows, rejected_rows, bucket, correlation_id, source_e
             ContentType="application/json",
             Metadata= metadata_base
         )
-        log_json("File written", correlation_id, file=s3_key,
+        log_json( logging.INFO , "File written", correlation_id, file=s3_key,
                  rows=len(selected_rows) if "selected" in s3_key else len(rejected_rows))
 
 
@@ -127,7 +137,7 @@ def lambda_handler(event, context):
     # 2. Check last processed etag
     last_etag = get_last_processed_etag(bucket, "processed/selected_data.json")
     if last_etag == current_etag:
-        log_json("Input file unchanged — skipping", correlation_id, etag=current_etag)
+        log_json( logging.INFO , "Input file unchanged — skipping", correlation_id, etag=current_etag)
         return {"status": "skipped", "correlationId": correlation_id}
 
     # 3. Read CSV dataset
@@ -146,7 +156,7 @@ def lambda_handler(event, context):
     candidate_rows = [r for r in rows if r.get("nodeName") and TARGET_SUB_CATEGORY in r["nodeName"]]
 
     if not candidate_rows:
-        log_json("No matching rows for target category — nothing to process",
+        log_json( logging.WARNING , "No matching rows for target category — nothing to process",
                  correlation_id, target=TARGET_SUB_CATEGORY)
         return {"status": "no_category_match", "correlationId": correlation_id}
 
@@ -161,7 +171,7 @@ def lambda_handler(event, context):
     # 6. Save results
     write_outputs(selected_rows, rejected_rows, bucket, correlation_id, current_etag , total_rows , valid_count , invalid_count)
 
-    log_json("Validation complete", correlation_id,
+    log_json(logging.INFO , "Validation complete", correlation_id,
              totalRows=total_rows,
              valid=valid_count,
              invalid=invalid_count)
