@@ -25,6 +25,7 @@ def log_json(level , message, correlation_id, **kwargs):
         "correlationId": correlation_id,
         "message": message,
 
+
         "level": level ,
 
         **kwargs
