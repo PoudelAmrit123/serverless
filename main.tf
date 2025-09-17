@@ -5,7 +5,7 @@ module "s3" {
 codebuild_iam_role_arn = module.cicd.codebuild_iam_role_arn
 data_analyzer_lambda_arn = module.lambda.data_analyzer_lambda_arn 
 data_ingestor_lambda_arn = module.lambda.data_analyzer_lambda_arn 
-notifier_lambda_arn = module.lambda.notifier_lambda_arn
+notifier_lambda_arn = module.lambda.notifier_lambda_role_arn
 
 }
 
