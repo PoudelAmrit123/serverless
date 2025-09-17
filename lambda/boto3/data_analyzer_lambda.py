@@ -91,7 +91,7 @@ def lambda_handler(event, context):
             # "additionalProperties": r.get("additionalProperties"),
             "name": r.get("name")
         }
-        for r in data[:50]  
+        for r in data[:16]  
     ]
 
     # Clear, grounded prompt
