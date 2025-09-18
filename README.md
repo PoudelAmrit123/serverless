@@ -76,7 +76,7 @@ The  test is done using the pytest.
 
 ## 2. High Level Overview 
 
-![archi](./images/Serverless(1).png)
+![archi](./images/Serverless(2).png)
 
 
 ## 3. Flow 
