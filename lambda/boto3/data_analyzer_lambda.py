@@ -3,6 +3,7 @@ import boto3
 import uuid
 from datetime import datetime, timezone
 import logging
+import time
 
 s3_client = boto3.client("s3")
 eventbridge = boto3.client("events")
@@ -184,20 +185,50 @@ If no matches are found, respond: "i'm sorry, but i can't provide specific detai
 
     prompt_with_data = f"{prompt}\n\nDataset:\n{json.dumps(filtered_rows, indent=2)}"
 
-    try:
-        bedrock_response = bedrock.invoke_model(
-            modelId="amazon.nova-lite-v1:0",
-            contentType="application/json",
-            accept="application/json",
-            body=json.dumps({
-                "messages": [
-                    {"role": "user", "content": [{"text": prompt_with_data}]}
-                ]
-            })
-        )
-    except Exception as e:
-        log_json(logging.ERROR, "Bedrock invocation failed", correlation_id, error=str(e))
-        raise
+
+    max_retries = 3
+    delay = 2  
+    attempt = 0
+    bedrock_response = None
+
+    while attempt < max_retries:
+        try:
+            bedrock_response = bedrock.invoke_model(
+                modelId="amazon.nova-lite-v1:0",
+                contentType="application/json",
+                accept="application/json",
+                body=json.dumps({
+                    "messages": [
+                        {"role": "user", "content": [{"text": prompt_with_data}]}
+                    ]
+                })
+            )
+         
+            break
+        except Exception as e:
+            attempt += 1
+            log_json(logging.WARNING, f"Bedrock invocation failed, attempt {attempt}", correlation_id, error=str(e))
+            if attempt >= max_retries:
+                log_json(logging.ERROR, "Max retries reached for Bedrock invocation", correlation_id, error=str(e))
+                raise
+            else:
+                time.sleep(delay)
+                delay *= 2  
+
+    # try:
+    #     bedrock_response = bedrock.invoke_model(
+    #         modelId="amazon.nova-lite-v1:0",
+    #         contentType="application/json",
+    #         accept="application/json",
+    #         body=json.dumps({
+    #             "messages": [
+    #                 {"role": "user", "content": [{"text": prompt_with_data}]}
+    #             ]
+    #         })
+    #     )
+    # except Exception as e:
+    #     log_json(logging.ERROR, "Bedrock invocation failed", correlation_id, error=str(e))
+    #     raise
 
 
 
