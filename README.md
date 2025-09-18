@@ -77,12 +77,22 @@ The  test is done using the pytest.
 
 ## 2. High Level Overview 
 
-![archi](./images/Serverless(1).png)
 
+![archi](./images/Serverless(2).png)
 
 
 
 ## 3. Flow 
+
+The user upload the data to the s3 bucket and uploading it to the /input invoke the data ingestor lambda function and the lambda function validate the data and seperate out to two different selected and rejects data. After that event bridge then invoke the data analyzer lambda function and it call the bedrock and then  store the value to the dynamoDB. After the completion of pushing data to the dynamoDB event bridge invoke the notifer function which get the value from the dynamoDB and then send the email using SES.
+
+
+
+
+
+The user upload the data to the s3 bucket and uploading it to the /input invoke the data ingestor lambda function and the lambda function validate the data and seperate out to two different selected and rejects data. After that event bridge then invoke the data analyzer lambda function and it call the bedrock and then  store the value to the dynamoDB. After the completion of pushing data to the dynamoDB event bridge invoke the notifer function which get the value from the dynamoDB and then send the email using SES.
+
+
 
 
 
