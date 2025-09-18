@@ -163,7 +163,41 @@ The lambda function take the value from the dynamoDB and create the custom messg
 
  - Use the SES to send the mail to the destination email address.
 
-### 4.4 Error Handling in Lambda Function.
+### 4.4 Retries in Lambda Function.
+ 
+  The retries involve in the bedrock request when there is the error in the bedrock response then the function retires for three more times.
+  Code Snippt:
+
+  ```
+    max_retries = 3
+    delay = 2  
+    attempt = 0
+    bedrock_response = None
+
+    while attempt < max_retries:
+        try:
+            bedrock_response = bedrock.invoke_model(
+                modelId="amazon.nova-lite-v1:0",
+                contentType="application/json",
+                accept="application/json",
+                body=json.dumps({
+                    "messages": [
+                        {"role": "user", "content": [{"text": prompt_with_data}]}
+                    ]
+                })
+            )
+         
+            break
+        except Exception as e:
+            attempt += 1
+            log_json(logging.WARNING, f"Bedrock invocation failed, attempt {attempt}", correlation_id, error=str(e))
+            if attempt >= max_retries:
+                log_json(logging.ERROR, "Max retries reached for Bedrock invocation", correlation_id, error=str(e))
+                raise
+            else:
+                time.sleep(delay)
+                delay *= 2 
+  ```
 
 
  ## 5. Event Bridge.
