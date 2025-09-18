@@ -66,11 +66,27 @@ terraform plan
 terraform apply 
 ```
 
+The File should be Uploaded to the S3 bucket.
+```
+aws s3 cp amazon_data.csv s3://amrit-s3-bucket-lf/input/<data>
+```
 
-## 2. High Level Overview
+The Test Have the Sample Data in the Test Function itself so one can change it.
+The  test is done using the pytest.
+
+## 2. High Level Overview 
+
+![archi](./images/Serverless(1).png)
+
+
+
 
 
 ## 3. Flow 
+
+
+The user upload the data to the s3 bucket and uploading it to the /input invoke the data ingestor lambda function and the lambda function validate the data and seperate out to two different selected and rejects data. After that event bridge then invoke the data analyzer lambda function and it call the bedrock and then  store the value to the dynamoDB. After the completion of pushing data to the dynamoDB event bridge invoke the notifer function which get the value from the dynamoDB and then send the email using SES.
+
 
 
 ## 4. Lambda Function
@@ -316,7 +332,71 @@ And also  Different  lambda Function have different lambda Role with their respe
 
 
 
-## Screenshot
+## 7. Bedrock COST Analysis
+
+Model Used: `amazon.nova-lite-v1:0`
+
+Bedrock Cost: 
+
+- Input tokens: $0.00006 per 1,000 tokens
+- Output tokens: $0.00024 per 1,000 tokens
+- Context window: 300K tokens
+
+<!-- **Input Token**
+
+
+The Prompt Count: ~ 650 Token  ( with out data).
+
+The User Data Per Row: ~ 235 Token.
+
+For 50 records :  235 * 50 = 11750 Token (  Can be Varied )
+
+Total Input Token:  12400 Token.
+
+The Input Token used in Latest Upload: 26680 ( from the response of BedRock)
+
+**Output Token**
+
+Total Output Token: 2000 Token
+
+**Total Cost Estimation**
+
+Input Token Cost: $0.00006 * 26680 / 1000 = $ 0.0016008 per request.
+Output Token Cost: $0.00024 * 2000 /1000 = $ 0.00048 per request.
+
+Total Cost: $ 0.0020808 per request.
+ -->
+
+ ## Input Token  
+| Item                     | Details / Calculation        | Tokens         |
+|---------------------------|------------------------------|----------------|
+| Prompt Count              | Without data                | ~650           |
+| User Data Per Row         |                              | ~235           |
+| For 50 Records            | 235 × 50                    | 11,750 (varies)|
+| Total Input Token         | Approx.                     | 12,400         |
+| Input Token (Bedrock)     | From latest upload           | 26,680         |
+
+### Output Token
+| Item              | Details / Calculation          | Tokens   |
+|-------------------|--------------------------------|----------|
+| Output Token      |         From last bedrock reponse                       | 2,000    |
+
+###  Cost Estimation  
+| Type              | Calculation                           | Cost ($)     |
+|-------------------|---------------------------------------|--------------|
+| Input Token Cost  | $0.00006 × 26,680 ÷ 1,000             | 0.0016008    |
+| Output Token Cost | $0.00024 × 2,000 ÷ 1,000              | 0.00048      |
+| **Total Cost**    | Input + Output                        | **0.0020808**|
+
+Total  Cost: 0.0020808 per Request.
+
+
+
+
+
+
+## 8. Screenshot
+
 
 
 ***Original Data in CSV.***
@@ -362,7 +442,6 @@ The rejection Data also contain the Resion why it is Rejected.
 Fig: CloudWatch Alarm SNS notification In Data ingestor lambda function error.
 
 
-## Instructions for testing with sample input data.
 
 
 
