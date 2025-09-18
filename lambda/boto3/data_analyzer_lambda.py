@@ -186,7 +186,7 @@ If no matches are found, respond: "i'm sorry, but i can't provide specific detai
 
     try:
         bedrock_response = bedrock.invoke_model(
-            modelId="amazon.nova-micro-v1:0",
+            modelId="amazon.nova-lite-v1:0",
             contentType="application/json",
             accept="application/json",
             body=json.dumps({
