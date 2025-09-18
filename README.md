@@ -95,6 +95,11 @@ The user upload the data to the s3 bucket and uploading it to the /input invoke 
 
 
 
+
+The user upload the data to the s3 bucket and uploading it to the /input invoke the data ingestor lambda function and the lambda function validate the data and seperate out to two different selected and rejects data. After that event bridge then invoke the data analyzer lambda function and it call the bedrock and then  store the value to the dynamoDB. After the completion of pushing data to the dynamoDB event bridge invoke the notifer function which get the value from the dynamoDB and then send the email using SES.
+
+
+
 ## 4. Lambda Function
 
 The serverless Project Have three Different lambda Function `data_ingestor_function` , `data_analyzer_function` and `notifier_function`.
@@ -402,6 +407,7 @@ Total  Cost: 0.0020808 per Request.
 
 
 ## 8. Screenshot
+
 
 
 ***Original Data in CSV.***
