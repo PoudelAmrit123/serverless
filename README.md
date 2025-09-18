@@ -100,6 +100,7 @@ The user upload the data to the s3 bucket and uploading it to the /input invoke 
 
 
 
+
 ## 4. Lambda Function
 
 The serverless Project Have three Different lambda Function `data_ingestor_function` , `data_analyzer_function` and `notifier_function`.
@@ -407,7 +408,6 @@ Total  Cost: 0.0020808 per Request.
 
 
 ## 8. Screenshot
-
 
 
 ***Original Data in CSV.***
